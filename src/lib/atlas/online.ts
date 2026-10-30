@@ -7,7 +7,7 @@ import { isSafeAvatar, isSafeNickname } from "./identity";
 // and a room disappears as soon as everyone leaves.
 
 export const MAX_PLAYERS = 8;
-export const REACTIONS = ["🔥", "😎", "😂", "👏", "😱", "GG"] as const;
+export const REACTIONS = ["🔥", "😎", "😂", "👏", "😱", "😢", "GG"] as const;
 const CODE_ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"; // no 0/O or 1/I look-alikes
 
 const URL = process.env.NEXT_PUBLIC_SUPABASE_URL;

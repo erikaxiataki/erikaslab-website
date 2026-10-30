@@ -60,7 +60,7 @@ function sanitize(raw: unknown): Profile | null {
   for (const k of COUNTERS) p[k] = count(r[k]);
   if (isSafeNickname(r.name)) p.name = r.name;
   if (isSafeAvatar(r.avatar)) p.avatar = r.avatar;
-  if (r.lang === "en" || r.lang === "fr") p.lang = r.lang;
+  if (r.lang === "en" || r.lang === "fr" || r.lang === "pt") p.lang = r.lang;
   if (typeof r.dailyLast === "string" && /^\d{4}-\d{2}-\d{2}$/.test(r.dailyLast)) p.dailyLast = r.dailyLast;
   if (Array.isArray(r.badges)) p.badges = BADGES.map((b) => b.id).filter((id) => (r.badges as unknown[]).includes(id));
   if (r.mastery && typeof r.mastery === "object") {

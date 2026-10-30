@@ -5,8 +5,10 @@ export type Country = {
   mapId: string | null;
   name: string;
   nameFr: string;
+  namePt: string;
   capital: string | null;
   capitalFr: string | null;
+  capitalPt: string | null;
   /** Every name a player may type for this country (English, French, alternate spellings). */
   aliases: string[];
   region: string;
@@ -45,10 +47,10 @@ export function inScope(c: Country, scope: Scope) {
 
 const fold = (s: string) => s.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
 
-/** Search by country or capital, in English or French, ignoring accents. */
+/** Search by country or capital, in any of the game's languages, ignoring accents. */
 export function matchesSearch(c: Country, query: string) {
   const q = fold(query.trim());
-  return !q || [c.name, c.nameFr, c.capital, c.capitalFr].some((s) => s && fold(s).includes(q));
+  return !q || [c.name, c.nameFr, c.namePt, c.capital, c.capitalFr, c.capitalPt].some((s) => s && fold(s).includes(q));
 }
 
 export function flagUrl(code: string) {
