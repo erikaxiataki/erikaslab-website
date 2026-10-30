@@ -26,6 +26,8 @@ export type Profile = {
   mastery: Record<string, number>;
   /** Best score per "mode|scope|difficulty". */
   best: Record<string, number>;
+  /** Every point ever scored in quiz games. */
+  totalPoints: number;
   /** Countries asked in recent solo games, oldest first, so new games can pick different ones. */
   recent: string[];
   /** Name Them All: most countries typed per "scope|minutes" (0 minutes = no timer). */
@@ -66,6 +68,7 @@ export function newProfile(): Profile {
     best: {},
     allBest: {},
     recent: [],
+    totalPoints: 0,
     muted: false,
     lang: browserLang(),
   };
@@ -74,7 +77,13 @@ export function newProfile(): Profile {
 export function loadProfile(): Profile {
   try {
     const raw = localStorage.getItem(KEY);
-    if (raw) return { ...newProfile(), ...JSON.parse(raw) };
+    if (raw) {
+      const saved = JSON.parse(raw);
+      const p: Profile = { ...newProfile(), ...saved };
+      // Profiles from before the total-points counter: estimate it from XP (each answer gave points/10 + 5 XP).
+      if (typeof saved.totalPoints !== "number") p.totalPoints = Math.max(0, (p.xp - 5 * p.totalCorrect) * 10);
+      return p;
+    }
   } catch {
     // Private mode or blocked storage: play with a fresh profile.
   }
@@ -176,26 +185,48 @@ export function bestKey(mode: Mode, scope: Scope, difficulty: Difficulty, endles
   return `${mode}|${scope}|${difficulty}${endless ? "|survival" : ""}`;
 }
 
-export function applyRound(
+/** XP and coins one answer is worth (the same amounts whether saved per answer or per round). */
+function answerReward(a: Answer) {
+  return { xp: Math.round(a.points / 10) + (a.correct ? 5 : 0), coins: a.correct ? 2 : 0 };
+}
+
+/**
+ * Saves a single answer right away (points, XP, coins, mastery), so progress isn't lost if the
+ * game is closed before the end. `streak` is the streak including this answer.
+ */
+export function applyAnswer(profile: Profile, q: Question, a: Answer, streak: number): Profile {
+  const p: Profile = { ...profile, mastery: { ...profile.mastery } };
+  const code = q.country.code;
+  p.mastery[code] = Math.max(0, Math.min(5, (p.mastery[code] ?? 0) + (a.correct ? 1 : -1)));
+  const { xp, coins } = answerReward(a);
+  p.xp += xp;
+  p.coins += coins;
+  p.totalPoints += a.points;
+  p.bestStreak = Math.max(p.bestStreak, streak);
+  if (a.correct) {
+    p.totalCorrect++;
+    if (q.kind === "map" || q.kind === "name") {
+      p.mapCorrect++;
+      if (q.kind === "map" && q.country.area < 2000) p.tinyCorrect++;
+    } else if (q.kind === "capital") p.capitalCorrect++;
+    else p.flagCorrect++;
+  }
+  return p;
+}
+
+/**
+ * Wraps up a round whose answers were already saved with applyAnswer: games played, records,
+ * daily streak, bonus coins, level-up bonus and badges. `startXp` is the XP before the round.
+ */
+export function finishRound(
   profile: Profile,
   r: RoundResult,
+  startXp: number,
   extra: Partial<Pick<Profile, "duelsPlayed" | "onlineGames" | "onlineWins" | "challengesWon">> = {},
   endless = false,
 ): { profile: Profile; rewards: Rewards } {
-  const p: Profile = { ...profile, mastery: { ...profile.mastery }, best: { ...profile.best } };
+  const p: Profile = { ...profile, best: { ...profile.best } };
   const correct = r.answers.filter((a) => a.correct).length;
-  r.answers.forEach((a, i) => {
-    const q = r.questions[i];
-    const code = q.country.code;
-    p.mastery[code] = Math.max(0, Math.min(5, (p.mastery[code] ?? 0) + (a.correct ? 1 : -1)));
-    if (!a.correct) return;
-    if (q.kind === "map") {
-      p.mapCorrect++;
-      if (q.country.area < 2000) p.tinyCorrect++;
-    } else if (q.kind === "capital") p.capitalCorrect++;
-    else p.flagCorrect++;
-  });
-  p.totalCorrect += correct;
   p.gamesPlayed++;
   const asked = r.questions.map((q) => q.country.code);
   p.recent = [...(profile.recent ?? []).filter((c) => !asked.includes(c)), ...asked].slice(-RECENT_SIZE);
@@ -214,17 +245,39 @@ export function applyRound(
   const newBest = r.score > (p.best[key] ?? 0);
   if (newBest) p.best[key] = r.score;
 
-  const xp = Math.round(r.score / 10) + correct * 5;
-  const coins = correct * 2 + (r.daily ? 25 : 0) + (newBest ? 10 : 0);
-  const before = levelFromXp(p.xp).level;
-  p.xp += xp;
-  p.coins += coins;
-  const leveledUp = levelFromXp(p.xp).level > before;
+  const earned = r.answers.map(answerReward);
+  const bonus = (r.daily ? 25 : 0) + (newBest ? 10 : 0);
+  p.coins += bonus;
+  const leveledUp = levelFromXp(p.xp).level > levelFromXp(startXp).level;
   if (leveledUp) p.coins += 50;
 
   const newBadges = BADGES.filter((b) => !p.badges.includes(b.id) && b.earned(p));
   p.badges = [...p.badges, ...newBadges.map((b) => b.id)];
-  return { profile: p, rewards: { xp, coins: coins + (leveledUp ? 50 : 0), newBadges, leveledUp, newBest } };
+  return {
+    profile: p,
+    rewards: {
+      xp: earned.reduce((s, e) => s + e.xp, 0),
+      coins: earned.reduce((s, e) => s + e.coins, 0) + bonus + (leveledUp ? 50 : 0),
+      newBadges,
+      leveledUp,
+      newBest,
+    },
+  };
+}
+
+/** Saves a whole round at once (online rooms, duels): every answer, then the round wrap-up. */
+export function applyRound(
+  profile: Profile,
+  r: RoundResult,
+  extra: Partial<Pick<Profile, "duelsPlayed" | "onlineGames" | "onlineWins" | "challengesWon">> = {},
+  endless = false,
+): { profile: Profile; rewards: Rewards } {
+  let streak = 0;
+  const p = r.answers.reduce((acc, a, i) => {
+    streak = a.correct ? streak + 1 : 0;
+    return applyAnswer(acc, r.questions[i], a, streak);
+  }, profile);
+  return finishRound(p, r, profile.xp, extra, endless);
 }
 
 // --- Name Them All ------------------------------------------------------------

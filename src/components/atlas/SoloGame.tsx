@@ -1,12 +1,12 @@
 "use client";
 
 import { Heart, X } from "lucide-react";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { Scope } from "@/lib/atlas/countries";
 import { type Answer, DIFFICULTY, type Difficulty, type Mode, generateQuestions, streakMultiplier } from "@/lib/atlas/game";
 import { useI18n } from "@/lib/atlas/i18n";
-import type { RoundResult } from "@/lib/atlas/progress";
-import { getProfile } from "@/lib/atlas/store";
+import { type Rewards, type RoundResult, applyAnswer } from "@/lib/atlas/progress";
+import { getProfile, setProfile } from "@/lib/atlas/store";
 import { QuestionView } from "./QuestionView";
 import { GameButton, Panel } from "./ui";
 
@@ -35,12 +35,18 @@ export function streaks(answers: Answer[]) {
 
 export function SoloGame({
   config,
-  onFinish,
+  onComplete,
+  onShowResults,
   onQuit,
   label,
 }: {
   config: SoloConfig;
-  onFinish: (r: RoundResult) => void;
+  /**
+   * Called once when the game ends (or is quit or closed partway), to save the round's records
+   * and badges. Each answer is already saved as it's given. Returns the rewards to show.
+   */
+  onComplete: (r: RoundResult, startXp: number) => Rewards;
+  onShowResults: (r: RoundResult, rewards: Rewards) => void;
   onQuit: () => void;
   label?: string;
 }) {
@@ -53,29 +59,67 @@ export function SoloGame({
   });
   const [index, setIndex] = useState(0);
   const [answers, setAnswers] = useState<Answer[]>([]);
-  const { streak, bestStreak } = useMemo(() => streaks(answers), [answers]);
+  const [startXp] = useState(() => getProfile().xp);
+  const answersRef = useRef<Answer[]>([]);
+  const completed = useRef<{ result: RoundResult; rewards: Rewards } | null>(null);
+  const { streak } = useMemo(() => streaks(answers), [answers]);
   const lives = DIFFICULTY[difficulty].lives - answers.filter((a) => !a.correct).length;
   const score = answers.reduce((s, a) => s + a.points, 0);
   const current = answers[index];
   const isLast = survival ? lives <= 0 || index === questions.length - 1 : index === questions.length - 1;
 
-  const finish = useCallback(() => {
-    onFinish({
-      mode,
-      scope,
-      difficulty,
-      questions: questions.slice(0, answers.length),
-      answers,
-      score,
-      bestStreak,
-      daily: config.daily,
-      fixedLength: !survival,
-    });
-  }, [onFinish, mode, scope, difficulty, questions, answers, score, bestStreak, config.daily, survival]);
+  /** Saves the round once. A partial round (quit or closed early) never counts as a daily or a perfect round. */
+  const complete = useCallback(
+    (all: Answer[], partial: boolean) => {
+      if (completed.current || all.length === 0) return completed.current;
+      const result: RoundResult = {
+        mode,
+        scope,
+        difficulty,
+        questions: questions.slice(0, all.length),
+        answers: all,
+        score: all.reduce((s, a) => s + a.points, 0),
+        bestStreak: streaks(all).bestStreak,
+        daily: config.daily && !partial,
+        fixedLength: !survival && !partial,
+      };
+      completed.current = { result, rewards: onComplete(result, startXp) };
+      return completed.current;
+    },
+    [mode, scope, difficulty, questions, config.daily, survival, onComplete, startXp],
+  );
 
-  const next = useCallback(() => (isLast ? finish() : setIndex((i) => i + 1)), [isLast, finish]);
+  const next = useCallback(() => {
+    if (!isLast) return setIndex((i) => i + 1);
+    const done = complete(answersRef.current, false);
+    if (done) onShowResults(done.result, done.rewards);
+  }, [isLast, complete, onShowResults]);
 
-  const handleAnswer = useCallback((a: Answer) => setAnswers((prev) => [...prev, a]), []);
+  // Each answer is saved immediately, and the round wraps up the moment it ends, before any button is pressed.
+  const handleAnswer = useCallback(
+    (a: Answer) => {
+      const all = [...answersRef.current, a];
+      answersRef.current = all;
+      setAnswers(all);
+      const q = questions[all.length - 1];
+      setProfile((p) => applyAnswer(p, q, a, streaks(all).streak));
+      const livesLeft = DIFFICULTY[difficulty].lives - all.filter((x) => !x.correct).length;
+      if (all.length === questions.length || (survival && livesLeft <= 0)) complete(all, false);
+    },
+    [questions, difficulty, survival, complete],
+  );
+
+  const quit = () => {
+    complete(answersRef.current, true);
+    onQuit();
+  };
+
+  // Closing the app mid-game still saves the round so far.
+  useEffect(() => {
+    const onHide = () => complete(answersRef.current, true);
+    window.addEventListener("pagehide", onHide);
+    return () => window.removeEventListener("pagehide", onHide);
+  }, [complete]);
 
   // Right answers move on by themselves; misses wait so there's time to learn.
   useEffect(() => {
@@ -96,7 +140,7 @@ export function SoloGame({
   return (
     <div className="flex flex-col gap-3">
       <Panel className="flex flex-wrap items-center gap-x-4 gap-y-2 py-3">
-        <button type="button" onClick={onQuit} aria-label={t("Quit game")} className="rounded-lg p-1 text-slate-400 hover:bg-slate-800 hover:text-white">
+        <button type="button" onClick={quit} aria-label={t("Quit game")} className="rounded-lg p-1 text-slate-400 hover:bg-slate-800 hover:text-white">
           <X className="size-5" />
         </button>
         {label && <span className="font-bold text-violet-300">{t(label)}</span>}
