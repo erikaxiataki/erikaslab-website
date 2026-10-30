@@ -7,7 +7,7 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-sans);
+  --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
   --font-heading: var(--font-sans);
   --color-sidebar-ring: var(--sidebar-ring);
@@ -127,4 +127,63 @@
   html {
     @apply font-sans;
   }
+}
+/* --- Atlas Quest ---------------------------------------------------------- */
+.atlas-country {
+  stroke: #0a1124;
+  stroke-width: 0.6;
+  vector-effect: non-scaling-stroke;
+  cursor: pointer;
+  transition: fill 0.2s;
+}
+.atlas-country:hover {
+  fill: #64748b;
+}
+
+@keyframes atlas-pop {
+  0% { transform: scale(0.6); opacity: 0; }
+  60% { transform: scale(1.08); opacity: 1; }
+  100% { transform: scale(1); }
+}
+.atlas-pop {
+  animation: atlas-pop 0.35s ease-out both;
+}
+
+@keyframes atlas-shake {
+  0%, 100% { transform: translateX(0); }
+  20%, 60% { transform: translateX(-6px); }
+  40%, 80% { transform: translateX(6px); }
+}
+.atlas-shake {
+  animation: atlas-shake 0.4s ease-in-out;
+}
+
+@keyframes atlas-confetti {
+  0% { transform: translate3d(0, -10vh, 0) rotate(0deg); opacity: 1; }
+  100% { transform: translate3d(var(--dx), 105vh, 0) rotate(720deg); opacity: 0.9; }
+}
+.atlas-confetti {
+  position: fixed;
+  top: 0;
+  width: 10px;
+  height: 14px;
+  border-radius: 2px;
+  pointer-events: none;
+  z-index: 60;
+  animation: atlas-confetti var(--dur) cubic-bezier(0.2, 0.6, 0.4, 1) var(--delay) forwards;
+}
+
+@keyframes atlas-float {
+  0% { transform: translateY(0); opacity: 1; }
+  100% { transform: translateY(-80px); opacity: 0; }
+}
+.atlas-float {
+  animation: atlas-float 1.6s ease-out forwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .atlas-pop, .atlas-shake, .atlas-confetti, .atlas-float {
+    animation: none;
+  }
+  .atlas-confetti { display: none; }
 }
