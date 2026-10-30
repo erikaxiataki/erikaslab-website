@@ -28,6 +28,8 @@ export type Profile = {
   best: Record<string, number>;
   muted: boolean;
   lang: "en" | "fr";
+  /** Set once the player has picked a language on the welcome screen (per device). */
+  langPicked: boolean;
 };
 
 const KEY = "atlas-quest-profile-v1";
@@ -57,6 +59,7 @@ export function newProfile(): Profile {
     best: {},
     muted: false,
     lang: typeof navigator !== "undefined" && navigator.language?.toLowerCase().startsWith("fr") ? "fr" : "en",
+    langPicked: false,
   };
 }
 
