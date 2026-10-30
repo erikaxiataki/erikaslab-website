@@ -61,7 +61,7 @@ export function SettingsPicker({
           ))}
         </div>
         <p className="mt-2 text-xs text-slate-400">
-          {value.difficulty === "easy" && t("Big, well-known countries. Lots of time.")}
+          {value.difficulty === "easy" && t("Big, well-known countries. Lots of time. The map zooms to the right continent.")}
           {value.difficulty === "normal" && t("Most countries, trickier choices. 1.5× points.")}
           {value.difficulty === "hard" && t("Every country, even tiny islands. Choices from neighbors. 2.5× points!")}
         </p>
