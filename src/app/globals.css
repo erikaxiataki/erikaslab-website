@@ -189,3 +189,44 @@
   }
   .atlas-confetti { display: none; }
 }
+
+/* --- Bible Quest ---------------------------------------------------------- */
+.bible-pop {
+  animation: atlas-pop 0.35s ease-out both;
+}
+.bible-shake {
+  animation: atlas-shake 0.4s ease-in-out;
+}
+
+/* A book dropping onto the shelf. */
+@keyframes bible-slot {
+  0% { transform: translateY(-40px) rotate(-8deg); opacity: 0; }
+  70% { transform: translateY(4px) rotate(1deg); opacity: 1; }
+  100% { transform: translateY(0) rotate(0); }
+}
+.bible-slot {
+  animation: bible-slot 0.35s cubic-bezier(0.3, 1.4, 0.6, 1) both;
+}
+
+@keyframes bible-bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+.bible-bounce {
+  display: inline-block;
+  animation: bible-bounce 0.8s ease-in-out infinite;
+}
+
+@keyframes bible-glow {
+  0%, 100% { box-shadow: 0 0 0 0 rgb(251 191 36 / 0.6); }
+  50% { box-shadow: 0 0 0 6px rgb(251 191 36 / 0); }
+}
+.bible-glow {
+  animation: bible-glow 1.6s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bible-pop, .bible-shake, .bible-slot, .bible-bounce, .bible-glow {
+    animation: none;
+  }
+}

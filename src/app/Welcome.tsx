@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import type { Lang } from "@/lib/atlas/i18n";
 import { setProfile, useProfile } from "@/lib/atlas/store";
@@ -61,6 +62,20 @@ export function Welcome() {
           );
         })}
       </div>
+      <Link
+        href="/bible"
+        className="group flex items-center gap-3 rounded-2xl bg-amber-500/10 px-5 py-3 text-left ring-1 ring-amber-400/30 transition hover:-translate-y-0.5 hover:bg-amber-500/20"
+      >
+        <span className="text-3xl transition group-hover:scale-110">📜</span>
+        <span className="flex flex-col">
+          <span className="text-lg font-black text-white">
+            Bible<span className="text-amber-400">Quest</span>
+          </span>
+          <span className="text-sm text-slate-400">
+            <span lang="fr">Les livres de la Bible</span> · <span lang="en">Books of the Bible</span> · <span lang="pt">Livros da Bíblia</span>
+          </span>
+        </span>
+      </Link>
     </main>
   );
 }
