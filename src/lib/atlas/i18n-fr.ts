@@ -347,8 +347,8 @@ export const FR: Record<string, string> = {
   "Name Them All": "Nomme-les tous",
   "⌨️ Name Them All": "⌨️ Nomme-les tous",
   "How many countries can you type before the timer runs out?": "Combien de pays peux-tu écrire avant la fin du chrono ?",
-  "Type every country you can think of before time runs out. English or French names both count!":
-    "Écris tous les pays auxquels tu penses avant la fin du temps. Les noms en français ou en anglais comptent !",
+  "Type every country you can think of before time runs out. English, French or Portuguese names all count!":
+    "Écris tous les pays auxquels tu penses avant la fin du temps. Les noms en français, en anglais ou en portugais comptent !",
   "Time": "Temps",
   "{n} min": "{n} min",
   "No timer": "Sans chrono",

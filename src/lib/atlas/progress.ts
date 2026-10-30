@@ -31,10 +31,15 @@ export type Profile = {
   /** Name Them All: most countries typed per "scope|minutes" (0 minutes = no timer). */
   allBest: Record<string, number>;
   muted: boolean;
-  lang: "en" | "fr";
+  lang: "en" | "fr" | "pt";
 };
 
 const KEY = "atlas-quest-profile-v1";
+
+function browserLang(): Profile["lang"] {
+  const l = typeof navigator !== "undefined" ? navigator.language?.toLowerCase() ?? "" : "";
+  return l.startsWith("fr") ? "fr" : l.startsWith("pt") ? "pt" : "en";
+}
 
 export function newProfile(): Profile {
   return {
@@ -62,7 +67,7 @@ export function newProfile(): Profile {
     allBest: {},
     recent: [],
     muted: false,
-    lang: typeof navigator !== "undefined" && navigator.language?.toLowerCase().startsWith("fr") ? "fr" : "en",
+    lang: browserLang(),
   };
 }
 

@@ -46,11 +46,26 @@ const ADJECTIVES_FR: Record<string, [string, string]> = {
   Wild: ["Sauvage", "Sauvage"], Sharp: ["Futé", "Futée"], Hyper: ["Hyper", "Hyper"], Atomic: ["Atomique", "Atomique"],
 };
 
-export function displayNickname(name: string, lang: "en" | "fr") {
+// Portuguese: noun first, adjective agreeing in gender ("Raposa Veloz", "Lobo Esperto").
+const NOUNS_PT: Record<string, [string, "m" | "f"]> = {
+  Falcon: ["Falcão", "m"], Tiger: ["Tigre", "m"], Wolf: ["Lobo", "m"], Shark: ["Tubarão", "m"], Panda: ["Panda", "m"],
+  Eagle: ["Águia", "f"], Fox: ["Raposa", "f"], Dragon: ["Dragão", "m"], Rhino: ["Rinoceronte", "m"], Cobra: ["Cobra", "f"],
+  Lynx: ["Lince", "m"], Orca: ["Orca", "f"], Jaguar: ["Onça", "f"], Hawk: ["Gavião", "m"], Bear: ["Urso", "m"],
+  Gecko: ["Lagartixa", "f"], Viking: ["Viking", "m"], Ninja: ["Ninja", "m"], Pilot: ["Piloto", "m"], Comet: ["Cometa", "m"],
+};
+const ADJECTIVES_PT: Record<string, [string, string]> = {
+  Swift: ["Veloz", "Veloz"], Brave: ["Valente", "Valente"], Mighty: ["Poderoso", "Poderosa"], Clever: ["Esperto", "Esperta"],
+  Turbo: ["Turbo", "Turbo"], Cosmic: ["Cósmico", "Cósmica"], Sneaky: ["Sorrateiro", "Sorrateira"], Epic: ["Épico", "Épica"],
+  Rapid: ["Rápido", "Rápida"], Lucky: ["Sortudo", "Sortuda"], Fearless: ["Destemido", "Destemida"], Golden: ["Dourado", "Dourada"],
+  Silent: ["Silencioso", "Silenciosa"], Stormy: ["Tempestuoso", "Tempestuosa"], Frosty: ["Gelado", "Gelada"], Blazing: ["Flamejante", "Flamejante"],
+  Wild: ["Selvagem", "Selvagem"], Sharp: ["Afiado", "Afiada"], Hyper: ["Hiper", "Hiper"], Atomic: ["Atômico", "Atômica"],
+};
+
+export function displayNickname(name: string, lang: "en" | "fr" | "pt") {
   if (lang === "en") return name;
   const [a, b] = name.split(" ");
-  const noun = NOUNS_FR[b];
-  const adj = ADJECTIVES_FR[a];
+  const noun = (lang === "pt" ? NOUNS_PT : NOUNS_FR)[b];
+  const adj = (lang === "pt" ? ADJECTIVES_PT : ADJECTIVES_FR)[a];
   if (!noun || !adj) return name;
   return `${noun[0]} ${adj[noun[1] === "m" ? 0 : 1]}`;
 }

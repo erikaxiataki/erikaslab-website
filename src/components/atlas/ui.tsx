@@ -2,13 +2,21 @@
 
 import { type ComponentProps, useMemo } from "react";
 import { type Country, flagUrl } from "@/lib/atlas/countries";
-import { useI18n } from "@/lib/atlas/i18n";
+import { countryName, useI18n } from "@/lib/atlas/i18n";
 import { cn } from "@/lib/utils";
 
 /** A country's flag. Pass `label` to override the alt text (e.g. to keep quiz answers secret). */
-export function Flag({ country, label, className }: { country: Pick<Country, "code" | "name"> & Partial<Pick<Country, "nameFr">>; label?: string; className?: string }) {
+export function Flag({
+  country,
+  label,
+  className,
+}: {
+  country: Pick<Country, "code" | "name"> & Partial<Pick<Country, "nameFr" | "namePt">>;
+  label?: string;
+  className?: string;
+}) {
   const { t, lang } = useI18n();
-  const name = lang === "fr" && country.nameFr ? country.nameFr : country.name;
+  const name = countryName(country, lang);
   return (
     // eslint-disable-next-line @next/next/no-img-element -- local SVGs; next/image adds nothing here
     <img

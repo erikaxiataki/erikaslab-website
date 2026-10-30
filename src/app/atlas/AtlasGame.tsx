@@ -16,7 +16,7 @@ import { GameButton, Panel, ProgressBar, SectionTitle } from "@/components/atlas
 import { CHALLENGE_LENGTH, type Challenge, decodeChallenge } from "@/lib/atlas/challenge";
 import { SCOPE_EMOJI } from "@/lib/atlas/countries";
 import { DIFFICULTY, MODES, dailySeed, randomSeed } from "@/lib/atlas/game";
-import { useI18n } from "@/lib/atlas/i18n";
+import { LANGS, useI18n } from "@/lib/atlas/i18n";
 import { onlineEnabled } from "@/lib/atlas/online";
 import { type Rewards, type RoundResult, applyRound, bestKey, levelFromXp, rankFor } from "@/lib/atlas/progress";
 import { play } from "@/lib/atlas/sound";
@@ -244,16 +244,21 @@ export function AtlasGame() {
           </span>
         </button>
         <span className="rounded-full bg-amber-400/15 px-2.5 py-1 text-sm font-bold text-amber-200 tabular-nums">🪙 {num(profile.coins)}</span>
-        <button
-          type="button"
-          aria-label={lang === "fr" ? "Switch to English" : "Passer en français"}
-          title={lang === "fr" ? "Switch to English" : "Passer en français"}
-          onClick={() => setProfile((p) => ({ ...p, lang: p.lang === "fr" ? "en" : "fr" }))}
-          className="flex overflow-hidden rounded-lg text-xs font-black ring-1 ring-white/15"
-        >
-          <span className={cn("px-1.5 py-1", lang === "en" ? "bg-violet-500 text-white" : "text-slate-400")}>EN</span>
-          <span className={cn("px-1.5 py-1", lang === "fr" ? "bg-violet-500 text-white" : "text-slate-400")}>FR</span>
-        </button>
+        <div role="group" aria-label="Language / Langue / Idioma" className="flex overflow-hidden rounded-lg text-xs font-black ring-1 ring-white/15">
+          {LANGS.map((l) => (
+            <button
+              key={l.id}
+              type="button"
+              lang={l.id}
+              title={l.label}
+              aria-pressed={lang === l.id}
+              onClick={() => setProfile((p) => ({ ...p, lang: l.id }))}
+              className={cn("px-1.5 py-1", lang === l.id ? "bg-violet-500 text-white" : "text-slate-400 hover:text-white")}
+            >
+              {l.short}
+            </button>
+          ))}
+        </div>
         <button
           type="button"
           aria-label={profile.muted ? t("Unmute sounds") : t("Mute sounds")}

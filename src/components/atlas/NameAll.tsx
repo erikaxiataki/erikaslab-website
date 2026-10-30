@@ -33,7 +33,7 @@ export function NameAll({ onHome }: { onHome: () => void }) {
     <Panel className="flex flex-col gap-4">
       <SectionTitle>{t("⌨️ Name Them All")}</SectionTitle>
       <p className="text-slate-300">
-        {t("Type every country you can think of before time runs out. English or French names both count!")}
+        {t("Type every country you can think of before time runs out. English, French or Portuguese names all count!")}
       </p>
       <div>
         <div className="mb-2 text-sm font-bold text-slate-300 uppercase">{t("Where")}</div>

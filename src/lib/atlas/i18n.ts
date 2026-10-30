@@ -3,27 +3,39 @@
 import { useCallback } from "react";
 import type { Country } from "./countries";
 import { FR } from "./i18n-fr";
+import { PT } from "./i18n-pt";
 import { displayNickname } from "./identity";
 import { useProfile } from "./store";
 
-export type Lang = "en" | "fr";
+export type Lang = "en" | "fr" | "pt";
+
+export const LANGS: { id: Lang; short: string; label: string }[] = [
+  { id: "en", short: "EN", label: "English" },
+  { id: "fr", short: "FR", label: "Français" },
+  { id: "pt", short: "PT", label: "Português" },
+];
+
+const DICTS: Record<Lang, Record<string, string> | null> = { en: null, fr: FR, pt: PT };
 
 /**
  * Translate an English UI string. English text is the key, so untranslated strings fall back to English.
  * `{name}`-style placeholders are filled from `vars`.
  */
 export function translate(lang: Lang, key: string, vars?: Record<string, string | number>) {
-  let s = lang === "fr" ? (FR[key] ?? key) : key;
+  let s = DICTS[lang]?.[key] ?? key;
   if (vars) for (const [k, v] of Object.entries(vars)) s = s.replaceAll(`{${k}}`, typeof v === "number" ? v.toLocaleString(lang) : v);
   return s;
 }
 
-export function countryName(c: Pick<Country, "name" | "nameFr">, lang: Lang) {
-  return lang === "fr" ? c.nameFr : c.name;
+type Named = Pick<Country, "name"> & Partial<Pick<Country, "nameFr" | "namePt">>;
+type WithCapital = Pick<Country, "capital"> & Partial<Pick<Country, "capitalFr" | "capitalPt">>;
+
+export function countryName(c: Named, lang: Lang) {
+  return (lang === "fr" ? c.nameFr : lang === "pt" ? c.namePt : null) ?? c.name;
 }
 
-export function capitalName(c: Pick<Country, "capital" | "capitalFr">, lang: Lang) {
-  return (lang === "fr" ? c.capitalFr : c.capital) ?? "—";
+export function capitalName(c: WithCapital, lang: Lang) {
+  return (lang === "fr" ? c.capitalFr : lang === "pt" ? c.capitalPt : c.capital) ?? c.capital ?? "—";
 }
 
 export function useI18n() {
@@ -32,8 +44,8 @@ export function useI18n() {
   return {
     lang,
     t,
-    name: (c: Pick<Country, "name" | "nameFr">) => countryName(c, lang),
-    capital: (c: Pick<Country, "capital" | "capitalFr">) => capitalName(c, lang),
+    name: (c: Named) => countryName(c, lang),
+    capital: (c: WithCapital) => capitalName(c, lang),
     nick: (n: string) => displayNickname(n, lang),
     num: (n: number) => n.toLocaleString(lang),
   };

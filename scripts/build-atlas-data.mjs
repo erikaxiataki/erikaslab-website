@@ -31,6 +31,34 @@ const CAPITALS_FR = {
   hk: "Victoria", pf: "Papeete", eh: "Laâyoune", gs: "King Edward Point", tf: "Port-aux-Français",
 };
 
+// Brazilian Portuguese names where the dataset uses Portugal's spelling (both are accepted when typing).
+const NAMES_PT = {
+  am: "Armênia", az: "Azerbaijão", bw: "Botsuana", by: "Bielorrússia", cz: "Tchéquia", dj: "Djibuti", ee: "Estônia",
+  ir: "Irã", ke: "Quênia", lv: "Letônia", mc: "Mônaco", mg: "Madagascar", mk: "Macedônia do Norte", nl: "Países Baixos",
+  pe: "Peru", pg: "Papua-Nova Guiné", pl: "Polônia", ro: "Romênia", si: "Eslovênia", sz: "Essuatíni", sc: "Seychelles",
+  tt: "Trinidad e Tobago", vc: "São Vicente e Granadinas", vn: "Vietnã", ye: "Iêmen", zw: "Zimbábue", va: "Vaticano",
+  gl: "Groenlândia", ps: "Palestina",
+};
+
+// Capitals in Portuguese where they differ from English.
+const CAPITALS_PT = {
+  af: "Cabul", dz: "Argel", am: "Erevã", at: "Viena", bd: "Daca", be: "Bruxelas", bg: "Sófia", cn: "Pequim",
+  cu: "Havana", cy: "Nicósia", cz: "Praga", dk: "Copenhague", eg: "Cairo", et: "Adis Abeba", fi: "Helsinque",
+  de: "Berlim", gr: "Atenas", gt: "Cidade da Guatemala", in: "Nova Délhi", id: "Jacarta", ir: "Teerã", iq: "Bagdá",
+  il: "Jerusalém", it: "Roma", jo: "Amã", kw: "Cidade do Kuwait", la: "Vienciana", lb: "Beirute", ly: "Trípoli",
+  lu: "Luxemburgo", mt: "Valeta", mx: "Cidade do México", mc: "Mônaco", mn: "Ulan Bator", np: "Katmandu",
+  mk: "Escópia", om: "Mascate", pa: "Cidade do Panamá", py: "Assunção", pl: "Varsóvia", pt: "Lisboa",
+  ro: "Bucareste", ru: "Moscou", sa: "Riad", rs: "Belgrado", sg: "Singapura", si: "Liubliana", so: "Mogadíscio",
+  za: "Pretória", kr: "Seul", es: "Madri", sd: "Cartum", se: "Estocolmo", ch: "Berna", sy: "Damasco", tw: "Taipé",
+  tj: "Duchambé", tn: "Túnis", tr: "Ancara", tm: "Asgabate", ua: "Kiev", gb: "Londres", us: "Washington",
+  uz: "Tashkent", va: "Vaticano", vn: "Hanói", ye: "Sanaa", ws: "Ápia", tt: "Porto de Espanha", ht: "Porto Príncipe",
+  ni: "Manágua", uy: "Montevidéu", bf: "Uagadugu", cm: "Iaundé", dj: "Djibuti", gh: "Acra", gn: "Conacri",
+  ke: "Nairóbi", lr: "Monróvia", sn: "Dacar", au: "Camberra", ki: "Tarawa do Sul", to: "Nucualofa",
+  is: "Reiquiavique", hu: "Budapeste", ad: "Andorra-a-Velha", nl: "Amsterdã", sm: "São Marinho", jp: "Tóquio",
+  tl: "Díli", ag: "Saint John's", gd: "Saint George's", kh: "Phnom Penh", td: "N'Djamena", mv: "Malé",
+  md: "Chișinău", kp: "Pyongyang", st: "São Tomé", eh: "El Aiune", hk: "Vitória", pf: "Papeete",
+};
+
 // Extra names kids are likely to type, on top of the dataset's alternate spellings.
 const EXTRA_NAMES = {
   us: ["US", "America", "United States of America", "Etats-Unis", "Amerique"],
@@ -38,6 +66,7 @@ const EXTRA_NAMES = {
   cd: ["Congo Kinshasa", "Democratic Republic of Congo", "RDC", "RD Congo"],
   cg: ["Congo Brazzaville"],
   es: ["Espana"],
+  nl: ["Holland", "Hollande", "Holanda"],
   cz: ["Czech Republic", "Republique tcheque"],
   cv: ["Cabo Verde"],
   tl: ["East Timor", "Timor oriental"],
@@ -48,7 +77,6 @@ const EXTRA_NAMES = {
   kr: ["Korea"],
   ba: ["Bosnia"],
   cf: ["CAR"],
-  nl: ["Holland", "Hollande"],
   mk: ["Macedonia", "Macedoine"],
   sz: ["Swaziland"],
   tr: ["Turkey", "Turkiye"],
@@ -63,6 +91,9 @@ function aliasesFor(c) {
     c.name.official,
     c.translations.fra?.common,
     c.translations.fra?.official,
+    c.translations.por?.common,
+    c.translations.por?.official,
+    NAMES_PT[c.cca2.toLowerCase()],
     ...c.altSpellings,
   ];
   const fromData = all.filter((n) => n && n.length >= 3 && !n.includes(",") && /^[\p{Script=Latin}\s'’.()-]+$/u.test(n));
@@ -83,8 +114,10 @@ const out = countries
       mapId: shapeIds.has(mapId) ? mapId : null,
       name: c.name.common,
       nameFr: c.translations.fra?.common ?? c.name.common,
+      namePt: NAMES_PT[c.cca2.toLowerCase()] ?? c.translations.por?.common ?? c.name.common,
       capital: c.capital?.[0] ?? null,
       capitalFr: CAPITALS_FR[c.cca2.toLowerCase()] ?? c.capital?.[0] ?? null,
+      capitalPt: CAPITALS_PT[c.cca2.toLowerCase()] ?? c.capital?.[0] ?? null,
       region: c.region,
       subregion: c.subregion || c.region,
       aliases: aliasesFor(c),
