@@ -228,6 +228,26 @@ export const FR: Record<string, string> = {
   "Get every Oceania country right once": "Trouve chaque pays d'Océanie au moins une fois",
   "Reach level 10": "Atteins le niveau 10",
 
+  // Save & restore
+  "💾 Save & restore": "💾 Sauvegarder et restaurer",
+  "Your progress saves automatically on this device. To play on another phone or computer, make a backup here and restore it there.":
+    "Ta progression est enregistrée automatiquement sur cet appareil. Pour jouer sur un autre téléphone ou ordinateur, fais une sauvegarde ici et restaure-la là-bas.",
+  "1. Back up": "1. Sauvegarder",
+  "💾 Make a save code": "💾 Créer un code de sauvegarde",
+  "Your save code": "Ton code de sauvegarde",
+  "Copied!": "Copié !",
+  "Copy": "Copier",
+  "Download file": "Télécharger le fichier",
+  "Send it to yourself (message or email) and open it on the other device.":
+    "Envoie-le-toi (message ou e-mail) et ouvre-le sur l'autre appareil.",
+  "2. Restore": "2. Restaurer",
+  "Paste your save code here…": "Colle ton code de sauvegarde ici…",
+  "♻️ Restore": "♻️ Restaurer",
+  "Open save file": "Ouvrir un fichier",
+  "Nothing is lost: you keep the best of both devices.": "Rien n'est perdu : tu gardes le meilleur des deux appareils.",
+  "That save code doesn't look right. Check you copied all of it.": "Ce code de sauvegarde ne semble pas valide. Vérifie que tu l'as copié en entier.",
+  "Progress restored! Level {level}, {badges} badges.": "Progression restaurée ! Niveau {level}, {badges} badges.",
+
   // Online
   "Online rooms aren't set up yet": "Les salons en ligne ne sont pas encore activés",
   "A grown-up needs to connect the free online service first (see SETUP-ONLINE.md). Until then, try a ⚔️ Duel on one device or send a 🎯 challenge link!":

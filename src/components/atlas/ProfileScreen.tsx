@@ -9,6 +9,7 @@ import { BADGES, levelFromXp, newProfile, rankFor } from "@/lib/atlas/progress";
 import { setProfile, useProfile } from "@/lib/atlas/store";
 import { cn } from "@/lib/utils";
 import { masteryColors } from "./Explore";
+import { SaveRestore } from "./SaveRestore";
 import { GameButton, Panel, ProgressBar, SectionTitle } from "./ui";
 import { WorldMap } from "./WorldMap";
 
@@ -133,6 +134,8 @@ export function ProfileScreen() {
           </ol>
         )}
       </Panel>
+
+      <SaveRestore />
 
       <div className="text-center">
         <GameButton
