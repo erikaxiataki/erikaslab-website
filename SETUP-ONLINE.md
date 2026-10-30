@@ -7,7 +7,7 @@ Everything in Atlas Quest works without this setup **except live Online Rooms**:
 ## 1. Create a free Supabase project (about 5 minutes)
 
 1. Sign up at <https://supabase.com> and click **New project**. Any name and region works; pick the region closest to the players.
-2. When the project is ready, open **Project Settings → API** (in newer dashboards: **Project Settings → API Keys**) and copy:
+2. When the project is ready, click **Connect** at the top of the dashboard: the `.env.local` tab shows both values ready to copy. Or open **Project Settings → API** (in newer dashboards: **Project Settings → API Keys**) and copy:
    - the **Project URL** (looks like `https://abcdefgh.supabase.co`)
    - the **anon / publishable** key. This key is designed to be public. **Never** use the `service_role` / secret key.
 3. Open **Realtime → Settings** and make sure public channels are allowed, i.e. the "private channels only" option is **off**. Recent dashboards may label this "Allow public access".
@@ -20,6 +20,8 @@ In your hosting provider (e.g. Vercel: **Project → Settings → Environment Va
 | --- | --- |
 | `NEXT_PUBLIC_SUPABASE_URL` | your Project URL |
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | your anon / publishable key |
+
+The key can also be named `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`, which is the name the Supabase **Connect** screen uses. Either name works.
 
 Then **redeploy** the site. The keys are read at build time, so an old build won't see them.
 
