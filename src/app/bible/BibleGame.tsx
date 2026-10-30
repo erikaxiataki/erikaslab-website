@@ -9,6 +9,7 @@ import { ProfileScreen } from "@/components/bible/ProfileScreen";
 import { type QuestStep, QuestMap } from "@/components/bible/QuestMap";
 import { type QuizConfig, QuizGame } from "@/components/bible/Quiz";
 import { Results } from "@/components/bible/Results";
+import { Welcome } from "@/components/bible/Welcome";
 import { TypeAll, type TypeResult } from "@/components/bible/TypeAll";
 import { Chip, GameButton, Panel, ProgressBar, SectionTitle } from "@/components/bible/ui";
 import { play } from "@/lib/bible/sound";
@@ -37,6 +38,7 @@ type ShelfConfig = { books: Book[]; title: string; island?: SectionId; grand?: b
 type InstallPrompt = Event & { prompt: () => Promise<void> };
 
 type Screen =
+  | { name: "welcome" }
   | { name: "home" }
   | { name: "quest" }
   | { name: "learn"; island: SectionId }
@@ -65,7 +67,8 @@ function shelfRun(scope: Scope, difficulty: Difficulty) {
 export function BibleGame() {
   const profile = useProfile();
   const { t, lang, num, section: sectionName } = useI18n();
-  const [screen, setScreen] = useState<Screen>({ name: "home" });
+  // Every visit starts on the landing page, where the player picks a language.
+  const [screen, setScreen] = useState<Screen>({ name: "welcome" });
   const [install, setInstall] = useState<InstallPrompt | null>(null);
   const [settings, setSettings] = useState<{ mode: Mode; scope: Scope; difficulty: Difficulty }>({ mode: "next", scope: "law", difficulty: "easy" });
 
@@ -173,6 +176,18 @@ export function BibleGame() {
     else if (step === "practice") startQuiz({ mode: "mix", scope: island, difficulty: "easy", seed: randomSeed(), count: 8, island }, label);
     else go({ name: "shelf", config: { books: booksIn(island), title: `${label} · ${t("Boss shelf")}`, island } });
   };
+
+  if (screen.name === "welcome") {
+    return (
+      <Welcome
+        profile={profile}
+        onStart={(l) => {
+          setProfile((p) => ({ ...p, lang: l, langChosen: true }));
+          go({ name: "home" });
+        }}
+      />
+    );
+  }
 
   if (!profile) {
     return <div className="grid min-h-[60vh] place-items-center text-stone-400">📖</div>;

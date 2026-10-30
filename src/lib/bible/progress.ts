@@ -29,6 +29,8 @@ export type Profile = {
   grandDone: boolean;
   muted: boolean;
   lang: Lang;
+  /** The player has picked a language on the landing page at least once. */
+  langChosen: boolean;
 };
 
 const KEY = "bible-quest-profile-v1";
@@ -60,6 +62,7 @@ export function newProfile(): Profile {
     grandDone: false,
     muted: false,
     lang: typeof window === "undefined" ? "en" : startLang(),
+    langChosen: false,
   };
 }
 

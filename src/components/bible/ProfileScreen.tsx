@@ -4,7 +4,7 @@ import { Copy, Download, Upload } from "lucide-react";
 import { useState } from "react";
 import { play } from "@/lib/bible/sound";
 import { exportProfile, importProfile, mergeProfiles } from "@/lib/bible/backup";
-import { useI18n } from "@/lib/bible/i18n";
+import { type Lang, translate, useI18n } from "@/lib/bible/i18n";
 import { BADGES, SHIELD_COST, levelFromXp, masteredCount, rankFor } from "@/lib/bible/progress";
 import { setProfile, useProfile } from "@/lib/bible/store";
 import { cn } from "@/lib/utils";
@@ -82,10 +82,15 @@ export function ProfileScreen() {
   );
 }
 
-/** Back up progress as a code/file and restore it on another device. No accounts needed. */
-function SaveRestore() {
+/**
+ * Back up progress as a code/file and restore it on another device. No accounts needed.
+ * `restoreOnly` shows just the restore part (used on the landing page).
+ */
+export function SaveRestore({ restoreOnly, lang }: { restoreOnly?: boolean; lang?: Lang }) {
   const profile = useProfile();
-  const { t } = useI18n();
+  const { t: profileT } = useI18n();
+  // The landing page passes the language being previewed.
+  const t = lang ? (key: string) => translate(lang, key) : profileT;
   const [code, setCode] = useState<string | null>(null);
   const [input, setInput] = useState("");
   const [msg, setMsg] = useState<{ ok: boolean; text: string } | null>(null);
@@ -137,9 +142,13 @@ function SaveRestore() {
 
   return (
     <Panel className="flex flex-col gap-3">
-      <SectionTitle>💾 {t("Save code")}</SectionTitle>
-      <p className="text-sm text-stone-400">{t("Your progress is saved on this device. To play on another device, make a save code and restore it there.")}</p>
-      <div className="flex flex-wrap gap-2">
+      {!restoreOnly && (
+        <>
+          <SectionTitle>💾 {t("Save code")}</SectionTitle>
+          <p className="text-sm text-stone-400">{t("Your progress is saved on this device. To play on another device, make a save code and restore it there.")}</p>
+        </>
+      )}
+      <div className={cn("flex flex-wrap gap-2", restoreOnly && "hidden")}>
         <GameButton tone="sky" onClick={backup}>
           {t("Make a save code")}
         </GameButton>
