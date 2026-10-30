@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 
 export default function Home() {
@@ -10,7 +11,7 @@ export default function Home() {
         href="/atlas"
         className="group mt-10 flex max-w-md items-center gap-4 rounded-2xl bg-gradient-to-br from-violet-500/30 to-indigo-600/20 p-5 text-left ring-1 ring-violet-400/40 transition hover:-translate-y-1 hover:brightness-125"
       >
-        <span className="text-5xl transition group-hover:scale-110">🌍</span>
+        <Image src="/icon.svg" alt="" width={72} height={72} className="size-18 shrink-0 rounded-2xl shadow-lg transition group-hover:scale-110" />
         <span>
           <span className="block text-xl font-black text-white">Atlas Quest</span>
           <span className="block text-slate-300">

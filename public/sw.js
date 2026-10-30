@@ -1,6 +1,6 @@
 // Atlas Quest service worker: makes the game playable offline after the first visit.
-const CACHE = "atlas-quest-v2";
-const PRECACHE = ["/atlas", "/manifest.webmanifest", "/icon-192.png", "/icon-512.png"];
+const CACHE = "atlas-quest-v3";
+const PRECACHE = ["/atlas", "/manifest.webmanifest", "/icon.svg", "/icon-192.png", "/icon-512.png"];
 
 self.addEventListener("install", (event) => {
   event.waitUntil(

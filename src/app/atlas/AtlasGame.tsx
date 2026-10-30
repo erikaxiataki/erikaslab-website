@@ -218,8 +218,12 @@ export function AtlasGame() {
   return (
     <div className="flex flex-col gap-4">
       <header className="sticky top-0 z-30 -mx-4 flex flex-wrap items-center gap-x-3 gap-y-2 bg-[#070b18]/90 px-4 py-2.5 backdrop-blur sm:mx-0 sm:rounded-b-2xl">
-        <button type="button" onClick={() => go({ name: "home" })} className="text-lg font-black tracking-tight text-white">
-          🌍 Atlas<span className="text-violet-400">Quest</span>
+        <button type="button" onClick={() => go({ name: "home" })} className="flex items-center gap-2 text-lg font-black tracking-tight text-white">
+          {/* eslint-disable-next-line @next/next/no-img-element -- static SVG logo */}
+          <img src="/icon.svg" alt="" width={32} height={32} className="size-8 rounded-lg" />
+          <span>
+            Atlas<span className="text-violet-400">Quest</span>
+          </span>
         </button>
         <button type="button" onClick={() => go({ name: "profile" })} className="ml-auto flex items-center gap-2 rounded-xl px-2 py-1 hover:bg-slate-800">
           <span className="text-2xl">{profile.avatar}</span>
