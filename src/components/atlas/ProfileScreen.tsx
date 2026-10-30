@@ -67,6 +67,7 @@ export function ProfileScreen() {
 
       <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
         {[
+          ["⭐", "Total points", profile.totalPoints],
           ["🪙", "Coins", profile.coins],
           ["🎮", "Games", profile.gamesPlayed],
           ["✅", "Right answers", profile.totalCorrect],
@@ -75,6 +76,7 @@ export function ProfileScreen() {
           ["🏳️", "Flags", profile.flagCorrect],
           ["🗺️", "Map finds", profile.mapCorrect],
           ["🥇", "Online wins", profile.onlineWins],
+          ["🏅", "Badges", profile.badges.length],
         ].map(([e, label, v]) => (
           <Panel key={label as string} className="p-3 text-center">
             <div className="text-xl font-black text-white">

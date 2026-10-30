@@ -10,9 +10,10 @@ import { BADGES, type Profile, newProfile } from "./progress";
 const COUNTERS = [
   "xp", "coins", "gamesPlayed", "totalCorrect", "flagCorrect", "mapCorrect", "capitalCorrect", "tinyCorrect",
   "bestStreak", "perfectRounds", "duelsPlayed", "onlineGames", "onlineWins", "challengesWon", "dailyStreak",
+  "totalPoints",
 ] as const satisfies readonly (keyof Profile)[];
 
-const MAX_COUNTER = 100_000_000;
+const MAX_COUNTER = 1_000_000_000;
 
 function toBase64Url(bytes: Uint8Array) {
   let bin = "";

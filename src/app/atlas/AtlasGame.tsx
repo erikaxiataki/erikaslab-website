@@ -18,9 +18,9 @@ import { SCOPE_EMOJI } from "@/lib/atlas/countries";
 import { DIFFICULTY, MODES, dailySeed, randomSeed } from "@/lib/atlas/game";
 import { LANGS, useI18n } from "@/lib/atlas/i18n";
 import { onlineEnabled } from "@/lib/atlas/online";
-import { type Rewards, type RoundResult, applyRound, bestKey, levelFromXp, rankFor } from "@/lib/atlas/progress";
+import { type Rewards, type RoundResult, bestKey, finishRound, levelFromXp, rankFor } from "@/lib/atlas/progress";
 import { play } from "@/lib/atlas/sound";
-import { setProfile, useProfile } from "@/lib/atlas/store";
+import { getProfile, setProfile, useProfile } from "@/lib/atlas/store";
 import { cn } from "@/lib/utils";
 
 type Screen =
@@ -89,13 +89,17 @@ export function AtlasGame() {
     if (window.location.search) window.history.replaceState(null, "", "/atlas");
   }, []);
 
-  const finish = (config: SoloConfig, challenge: Challenge | null | undefined, label: string | undefined) => (result: RoundResult) => {
-    if (!profile) return;
+  // The answers are already saved one by one; this saves the round's records, bonuses and badges.
+  const completeRound = (config: SoloConfig, challenge: Challenge | null | undefined) => (result: RoundResult, startXp: number) => {
     const won = challenge && result.score > challenge.score ? 1 : 0;
-    const out = applyRound(profile, result, { challengesWon: won }, config.survival);
+    const out = finishRound(getProfile(), result, startXp, { challengesWon: won }, config.survival);
     setProfile(out.profile);
-    play(out.rewards.leveledUp ? "levelup" : "win");
-    setScreen({ name: "result", result, rewards: out.rewards, config, challenge, label });
+    return out.rewards;
+  };
+
+  const showResults = (config: SoloConfig, challenge: Challenge | null | undefined, label: string | undefined) => (result: RoundResult, rewards: Rewards) => {
+    play(rewards.leveledUp ? "levelup" : "win");
+    setScreen({ name: "result", result, rewards, config, challenge, label });
     window.scrollTo({ top: 0 });
   };
 
@@ -147,7 +151,8 @@ export function AtlasGame() {
           config={screen.config}
           label={screen.label}
           onQuit={() => go({ name: "home" })}
-          onFinish={finish(screen.config, screen.challenge, screen.label)}
+          onComplete={completeRound(screen.config, screen.challenge)}
+          onShowResults={showResults(screen.config, screen.challenge, screen.label)}
         />
       );
       break;
@@ -243,7 +248,10 @@ export function AtlasGame() {
             <ProgressBar value={into / need} className="h-1.5 w-14" />
           </span>
         </button>
-        <span className="rounded-full bg-amber-400/15 px-2.5 py-1 text-sm font-bold text-amber-200 tabular-nums">🪙 {num(profile.coins)}</span>
+        <span title={t("Total points")} className="rounded-full bg-violet-500/20 px-2.5 py-1 text-sm font-bold text-violet-100 tabular-nums">
+          ⭐ {num(profile.totalPoints)}
+        </span>
+        <span title={t("Coins")} className="rounded-full bg-amber-400/15 px-2.5 py-1 text-sm font-bold text-amber-200 tabular-nums">🪙 {num(profile.coins)}</span>
         <div role="group" aria-label="Language / Langue / Idioma" className="flex overflow-hidden rounded-lg text-xs font-black ring-1 ring-white/15">
           {LANGS.map((l) => (
             <button

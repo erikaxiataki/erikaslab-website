@@ -2,7 +2,7 @@
 
 import { Clock } from "lucide-react";
 import { type ReactNode, useCallback, useEffect, useRef, useState } from "react";
-import type { Country, Scope } from "@/lib/atlas/countries";
+import { BY_CODE, type Country, type Scope } from "@/lib/atlas/countries";
 import { type Answer, type Difficulty, type Question, scoreAnswer, timeLimitMs } from "@/lib/atlas/game";
 import { useI18n } from "@/lib/atlas/i18n";
 import { matchTyped } from "@/lib/atlas/names";
@@ -94,6 +94,7 @@ export function QuestionView({ question, difficulty, scope, streak, onAnswer, hi
   };
 
   const picked = answer?.pickedCode;
+  const pickedCountry = picked && picked !== country.code ? BY_CODE.get(picked) : undefined;
   const colors: Record<string, string> = {};
   if (kind === "name" && !answer) colors[country.code] = MAP_COLORS.selected;
   if (answer) {
@@ -278,7 +279,16 @@ export function QuestionView({ question, difficulty, scope, streak, onAnswer, hi
             {!answer.correct && (
               <>
                 {t("It was")} <b className="text-white">{name(country)}</b>
-                {answer.distanceKm !== undefined && <> · {t("you were {km} km away", { km: num(answer.distanceKm) })}</>}
+                {pickedCountry && (
+                  <>
+                    {" · "}
+                    <span className="text-red-300">
+                      {answer.distanceKm !== undefined
+                        ? t("you tapped {name}, {km} km away", { name: name(pickedCountry), km: num(answer.distanceKm) })
+                        : t("you answered {name}", { name: name(pickedCountry) })}
+                    </span>
+                  </>
+                )}
                 {" · "}
               </>
             )}
@@ -292,7 +302,13 @@ export function QuestionView({ question, difficulty, scope, streak, onAnswer, hi
         scope={viewScope}
         colors={colors}
         onPick={kind === "map" && !answer ? submit : undefined}
-        focus={answer || kind === "name" ? wideFocus(country, !!answer) : hintFocus}
+        focus={
+          answer && pickedCountry && !answer.correct
+            ? bothFocus(country, pickedCountry)
+            : answer || kind === "name"
+              ? wideFocus(country, !!answer)
+              : hintFocus
+        }
         className={cn(kind !== "map" && kind !== "name" && !answer && "opacity-60")}
       />
     </div>
@@ -300,6 +316,15 @@ export function QuestionView({ question, difficulty, scope, streak, onAnswer, hi
 }
 
 /** Name It shows the highlighted country with plenty of surroundings, so its shape and neighbors help. */
+/** After a wrong answer, frame both the right country and the one picked, so the mistake is visible. */
+function bothFocus(a: Country, b: Country): MapFocus {
+  const span = Math.max(countryFocus(a).span, Math.abs(a.latlng[1] - b.latlng[1]) * 0.65, Math.abs(a.latlng[0] - b.latlng[0]) * 1.3);
+  return {
+    latlng: [(a.latlng[0] + b.latlng[0]) / 2, (a.latlng[1] + b.latlng[1]) / 2],
+    span: Math.min(170, span),
+  };
+}
+
 function wideFocus(country: Country, answered: boolean): MapFocus {
   const f = countryFocus(country);
   return answered ? f : { latlng: f.latlng, span: Math.min(90, Math.max(30, f.span * 2.5)) };

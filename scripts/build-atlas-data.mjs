@@ -8,6 +8,10 @@ const require = createRequire(import.meta.url);
 const countries = require("world-countries");
 const topo = require("world-atlas/countries-50m.json");
 
+// Fixes to the dataset: outdated names and capitals that schools don't usually teach.
+const NAMES_FR = { sz: "Eswatini", ax: "Îles Åland" };
+const CAPITAL_FIX = { sz: "Mbabane" }; // Lobamba is the royal/legislative seat; Mbabane is the one taught
+
 // French names for capitals that differ from English (everything else is spelled the same).
 const CAPITALS_FR = {
   af: "Kaboul", dz: "Alger", ag: "Saint John's", am: "Erevan", at: "Vienne", az: "Bakou", bh: "Manama",
@@ -26,7 +30,7 @@ const CAPITALS_FR = {
   se: "Stockholm", ch: "Berne", sy: "Damas", tw: "Taipei", tj: "Douchanbé", th: "Bangkok",
   tt: "Port-d'Espagne", tn: "Tunis", tm: "Achgabat", ua: "Kiev", ae: "Abou Dabi", gb: "Londres",
   us: "Washington", uz: "Tachkent", va: "Vatican", vn: "Hanoï", ye: "Sanaa", ps: "Ramallah",
-  xk: "Pristina", sz: "Lobamba", tl: "Dili", fm: "Palikir", ws: "Apia", to: "Nukuʻalofa", ki: "Tarawa-Sud",
+  xk: "Pristina", tl: "Dili", fm: "Palikir", ws: "Apia", to: "Nukuʻalofa", ki: "Tarawa-Sud",
   ci: "Yamoussoukro", za: "Pretoria", cd: "Kinshasa", cg: "Brazzaville", tz: "Dodoma",
   hk: "Victoria", pf: "Papeete", eh: "Laâyoune", gs: "King Edward Point", tf: "Port-aux-Français",
 };
@@ -108,16 +112,18 @@ const shapeIds = new Set(
 const out = countries
   .filter((c) => c.cca2 !== "AQ")
   .map((c) => {
+    const code = c.cca2.toLowerCase();
+    const capital = CAPITAL_FIX[code] ?? c.capital?.[0] ?? null;
     const mapId = c.cca2 === "XK" ? "XK" : c.ccn3;
     return {
       code: c.cca2.toLowerCase(),
       mapId: shapeIds.has(mapId) ? mapId : null,
       name: c.name.common,
-      nameFr: c.translations.fra?.common ?? c.name.common,
+      nameFr: NAMES_FR[code] ?? c.translations.fra?.common ?? c.name.common,
       namePt: NAMES_PT[c.cca2.toLowerCase()] ?? c.translations.por?.common ?? c.name.common,
-      capital: c.capital?.[0] ?? null,
-      capitalFr: CAPITALS_FR[c.cca2.toLowerCase()] ?? c.capital?.[0] ?? null,
-      capitalPt: CAPITALS_PT[c.cca2.toLowerCase()] ?? c.capital?.[0] ?? null,
+      capital,
+      capitalFr: CAPITALS_FR[code] ?? capital,
+      capitalPt: CAPITALS_PT[code] ?? capital,
       region: c.region,
       subregion: c.subregion || c.region,
       aliases: aliasesFor(c),
