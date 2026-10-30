@@ -31,6 +31,44 @@ const CAPITALS_FR = {
   hk: "Victoria", pf: "Papeete", eh: "Laâyoune", gs: "King Edward Point", tf: "Port-aux-Français",
 };
 
+// Extra names kids are likely to type, on top of the dataset's alternate spellings.
+const EXTRA_NAMES = {
+  us: ["US", "America", "United States of America", "Etats-Unis", "Amerique"],
+  gb: ["UK", "Britain", "England", "Angleterre", "Grande-Bretagne"],
+  cd: ["Congo Kinshasa", "Democratic Republic of Congo", "RDC", "RD Congo"],
+  cg: ["Congo Brazzaville"],
+  es: ["Espana"],
+  cz: ["Czech Republic", "Republique tcheque"],
+  cv: ["Cabo Verde"],
+  tl: ["East Timor", "Timor oriental"],
+  mm: ["Birmanie"],
+  ae: ["UAE", "Emirates", "Emirats arabes unis", "EAU"],
+  ci: ["Ivory Coast"],
+  va: ["Vatican"],
+  kr: ["Korea"],
+  ba: ["Bosnia"],
+  cf: ["CAR"],
+  nl: ["Holland", "Hollande"],
+  mk: ["Macedonia", "Macedoine"],
+  sz: ["Swaziland"],
+  tr: ["Turkey", "Turkiye"],
+  ru: ["Russian Federation"],
+};
+
+// Names players can type to answer: English and French names plus alternate spellings
+// (Latin script only, no 2-letter codes, no "Korea, Republic of"-style reorderings).
+function aliasesFor(c) {
+  const all = [
+    c.name.common,
+    c.name.official,
+    c.translations.fra?.common,
+    c.translations.fra?.official,
+    ...c.altSpellings,
+  ];
+  const fromData = all.filter((n) => n && n.length >= 3 && !n.includes(",") && /^[\p{Script=Latin}\s'’.()-]+$/u.test(n));
+  return [...new Set([...fromData, ...(EXTRA_NAMES[c.cca2.toLowerCase()] ?? [])])];
+}
+
 const root = new URL("..", import.meta.url).pathname;
 const shapeIds = new Set(
   topo.objects.countries.geometries.map((g) => g.id ?? (g.properties.name === "Kosovo" ? "XK" : undefined)).filter(Boolean),
@@ -49,6 +87,7 @@ const out = countries
       capitalFr: CAPITALS_FR[c.cca2.toLowerCase()] ?? c.capital?.[0] ?? null,
       region: c.region,
       subregion: c.subregion || c.region,
+      aliases: aliasesFor(c),
       area: Math.round(c.area),
       latlng: c.latlng,
       independent: Boolean(c.independent) || c.cca2 === "XK",

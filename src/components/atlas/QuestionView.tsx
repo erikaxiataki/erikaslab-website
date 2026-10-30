@@ -3,8 +3,9 @@
 import { Clock } from "lucide-react";
 import { type ReactNode, useCallback, useEffect, useRef, useState } from "react";
 import type { Country, Scope } from "@/lib/atlas/countries";
-import { type Answer, DIFFICULTY, type Difficulty, type Question, scoreAnswer } from "@/lib/atlas/game";
+import { type Answer, type Difficulty, type Question, scoreAnswer, timeLimitMs } from "@/lib/atlas/game";
 import { useI18n } from "@/lib/atlas/i18n";
+import { matchTyped } from "@/lib/atlas/names";
 import { play } from "@/lib/atlas/sound";
 import { setProfile, useProfile } from "@/lib/atlas/store";
 import { cn } from "@/lib/utils";
@@ -23,7 +24,7 @@ type Props = {
   footer?: (a: Answer) => ReactNode;
 };
 
-const HINT_COST = { fifty: 30, time: 15, zoom: 25 };
+const HINT_COST = { fifty: 30, time: 15, zoom: 25, letter: 20 };
 
 export function QuestionView({ question, difficulty, scope, streak, onAnswer, hints, footer }: Props) {
   const profile = useProfile();
@@ -34,9 +35,12 @@ export function QuestionView({ question, difficulty, scope, streak, onAnswer, hi
   const [answer, setAnswer] = useState<Answer | null>(null);
   const [removed, setRemoved] = useState<string[]>([]);
   const [hintFocus, setHintFocus] = useState<MapFocus | null>(null);
+  const [typed, setTyped] = useState("");
+  const [gaveAnswer, setGaveAnswer] = useState(false);
+  const [showLetter, setShowLetter] = useState(false);
   const answered = useRef(false);
 
-  const limit = DIFFICULTY[difficulty].seconds * 1000 + extraMs;
+  const limit = timeLimitMs(question.kind, difficulty) + extraMs;
   const left = Math.max(0, limit - (now - start));
   const { country, kind, options } = question;
 
@@ -64,8 +68,15 @@ export function QuestionView({ question, difficulty, scope, streak, onAnswer, hi
     return () => clearInterval(id);
   }, [answer, limit, start, submit]);
 
+  const submitTyped = () => {
+    if (!typed.trim() || answered.current) return;
+    setGaveAnswer(true);
+    const { correct, picked } = matchTyped(typed, country);
+    submit(correct ? country : picked);
+  };
+
   useEffect(() => {
-    if (answer || kind === "map") return;
+    if (answer || kind === "map" || kind === "name") return;
     const onKey = (e: KeyboardEvent) => {
       const i = Number(e.key) - 1;
       const opt = options[i];
@@ -84,6 +95,7 @@ export function QuestionView({ question, difficulty, scope, streak, onAnswer, hi
 
   const picked = answer?.pickedCode;
   const colors: Record<string, string> = {};
+  if (kind === "name" && !answer) colors[country.code] = MAP_COLORS.selected;
   if (answer) {
     if (picked && !answer.correct) colors[picked] = MAP_COLORS.wrong;
     colors[country.code] = MAP_COLORS.correct;
@@ -111,6 +123,10 @@ export function QuestionView({ question, difficulty, scope, streak, onAnswer, hi
             <>
               {t("Find")} <span className="text-amber-300">{name(country)}</span>
             </>
+          ) : kind === "name" ? (
+            <>
+              {t("Which country is")} <span className="text-amber-300">{t("highlighted")}</span>?
+            </>
           ) : kind === "flag" ? (
             t("Which country has this flag?")
           ) : kind === "flag-reverse" ? (
@@ -121,7 +137,60 @@ export function QuestionView({ question, difficulty, scope, streak, onAnswer, hi
         </h3>
       </div>
 
-      {kind !== "map" && (
+      {kind === "name" && (
+        <form
+          className="flex flex-col gap-2 sm:flex-row"
+          onSubmit={(e) => {
+            e.preventDefault();
+            submitTyped();
+          }}
+        >
+          <input
+            value={typed}
+            onChange={(e) => setTyped(e.target.value)}
+            disabled={!!answer}
+            autoFocus
+            autoComplete="off"
+            autoCorrect="off"
+            autoCapitalize="off"
+            spellCheck={false}
+            enterKeyHint="done"
+            placeholder={t("Type the country name…")}
+            aria-label={t("Type the country name…")}
+            className={cn(
+              "min-w-0 flex-1 rounded-xl bg-slate-800 px-4 py-3 text-lg font-bold text-white ring-2 ring-white/10 outline-none placeholder:font-normal placeholder:text-slate-500 focus:ring-violet-400",
+              answer && (answer.correct ? "ring-green-400" : "atlas-shake ring-red-400"),
+            )}
+          />
+          {!answer && (
+            <div className="flex gap-2">
+              <button type="submit" disabled={!typed.trim()} className="flex-1 rounded-xl bg-violet-500 px-5 py-3 font-black text-white hover:bg-violet-400 disabled:opacity-40">
+                {t("OK")}
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setGaveAnswer(true);
+                  submit(null);
+                }}
+                className="rounded-xl bg-slate-800 px-4 py-3 text-sm font-bold text-slate-300 hover:bg-slate-700"
+              >
+                {t("Skip")}
+              </button>
+            </div>
+          )}
+        </form>
+      )}
+      {kind === "name" && showLetter && !answer && (
+        <p className="text-center text-sm text-amber-200">
+          {t("Starts with “{letter}” · {n} letters", {
+            letter: name(country)[0],
+            n: name(country).replace(/[^\p{L}]/gu, "").length,
+          })}
+        </p>
+      )}
+
+      {kind !== "map" && kind !== "name" && (
         <div className={cn("grid gap-2", kind === "flag-reverse" ? "grid-cols-2" : "grid-cols-1 sm:grid-cols-2")}>
           {options.map((opt, i) => {
             const isAnswer = opt.code === country.code;
@@ -157,7 +226,15 @@ export function QuestionView({ question, difficulty, scope, streak, onAnswer, hi
 
       {hints && !answer && (
         <div className="flex flex-wrap justify-center gap-2 text-xs">
-          {kind !== "map" && (
+          {kind === "name" && (
+            <HintButton
+              label={t("First letter")}
+              cost={HINT_COST.letter}
+              disabled={showLetter}
+              onClick={() => spend(HINT_COST.letter) && setShowLetter(true)}
+            />
+          )}
+          {kind !== "map" && kind !== "name" && (
             <HintButton
               label={t("50 / 50")}
               cost={HINT_COST.fifty}
@@ -192,7 +269,7 @@ export function QuestionView({ question, difficulty, scope, streak, onAnswer, hi
       {answer && (
         <div className={cn("atlas-pop rounded-xl px-4 py-3 text-center", answer.correct ? "bg-green-500/15" : "bg-red-500/15")}>
           <p className="text-lg font-black text-white">
-            {answer.correct ? t("✅ Correct! +{n}", { n: answer.points }) : picked ? t("❌ Not quite!") : t("⏰ Time's up!")}
+            {answer.correct ? t("✅ Correct! +{n}", { n: answer.points }) : picked || gaveAnswer ? t("❌ Not quite!") : t("⏰ Time's up!")}
             {!answer.correct && answer.points > 0 && <span className="text-amber-300"> {t("+{n} for being close", { n: answer.points })}</span>}
           </p>
           <p className="mt-1 text-sm text-slate-300">
@@ -213,11 +290,17 @@ export function QuestionView({ question, difficulty, scope, streak, onAnswer, hi
         scope={scope}
         colors={colors}
         onPick={kind === "map" && !answer ? submit : undefined}
-        focus={answer ? countryFocus(country) : hintFocus}
-        className={cn(kind !== "map" && !answer && "opacity-60")}
+        focus={answer || kind === "name" ? wideFocus(country, !!answer) : hintFocus}
+        className={cn(kind !== "map" && kind !== "name" && !answer && "opacity-60")}
       />
     </div>
   );
+}
+
+/** Name It shows the highlighted country with plenty of surroundings, so its shape and neighbors help. */
+function wideFocus(country: Country, answered: boolean): MapFocus {
+  const f = countryFocus(country);
+  return answered ? f : { latlng: f.latlng, span: Math.min(90, Math.max(30, f.span * 2.5)) };
 }
 
 function HintButton({ label, cost, disabled, onClick }: { label: string; cost: number; disabled?: boolean; onClick: () => void }) {

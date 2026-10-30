@@ -228,6 +228,26 @@ export const FR: Record<string, string> = {
   "Get every Oceania country right once": "Trouve chaque pays d'Océanie au moins une fois",
   "Reach level 10": "Atteins le niveau 10",
 
+  // Save & restore
+  "💾 Save & restore": "💾 Sauvegarder et restaurer",
+  "Your progress saves automatically on this device. To play on another phone or computer, make a backup here and restore it there.":
+    "Ta progression est enregistrée automatiquement sur cet appareil. Pour jouer sur un autre téléphone ou ordinateur, fais une sauvegarde ici et restaure-la là-bas.",
+  "1. Back up": "1. Sauvegarder",
+  "💾 Make a save code": "💾 Créer un code de sauvegarde",
+  "Your save code": "Ton code de sauvegarde",
+  "Copied!": "Copié !",
+  "Copy": "Copier",
+  "Download file": "Télécharger le fichier",
+  "Send it to yourself (message or email) and open it on the other device.":
+    "Envoie-le-toi (message ou e-mail) et ouvre-le sur l'autre appareil.",
+  "2. Restore": "2. Restaurer",
+  "Paste your save code here…": "Colle ton code de sauvegarde ici…",
+  "♻️ Restore": "♻️ Restaurer",
+  "Open save file": "Ouvrir un fichier",
+  "Nothing is lost: you keep the best of both devices.": "Rien n'est perdu : tu gardes le meilleur des deux appareils.",
+  "That save code doesn't look right. Check you copied all of it.": "Ce code de sauvegarde ne semble pas valide. Vérifie que tu l'as copié en entier.",
+  "Progress restored! Level {level}, {badges} badges.": "Progression restaurée ! Niveau {level}, {badges} badges.",
+
   // Online
   "Online rooms aren't set up yet": "Les salons en ligne ne sont pas encore activés",
   "A grown-up needs to connect the free online service first (see SETUP-ONLINE.md). Until then, try a ⚔️ Duel on one device or send a 🎯 challenge link!":
@@ -311,4 +331,38 @@ export const FR: Record<string, string> = {
   "This game works offline": "Ce jeu marche sans Internet",
   "Offline ready": "Prêt hors ligne",
   "📅 Daily": "📅 Défi du jour",
+
+  // Name It & Name Them All
+  "Name It": "Nomme-le",
+  "Type the highlighted country": "Écris le pays en surbrillance",
+  "Which country is": "Quel pays est",
+  "highlighted": "en surbrillance",
+  "Type the country name…": "Écris le nom du pays…",
+  "OK": "OK",
+  "Skip": "Passer",
+  "First letter": "Première lettre",
+  "Starts with “{letter}” · {n} letters": "Commence par « {letter} » · {n} lettres",
+  "Map Hunt, Flags, Capitals, Name It or a Mix. 10 questions.": "Carte, drapeaux, capitales, noms à écrire ou un mélange. 10 questions.",
+  "Name Them All": "Nomme-les tous",
+  "⌨️ Name Them All": "⌨️ Nomme-les tous",
+  "How many countries can you type before the timer runs out?": "Combien de pays peux-tu écrire avant la fin du chrono ?",
+  "Type every country you can think of before time runs out. English or French names both count!":
+    "Écris tous les pays auxquels tu penses avant la fin du temps. Les noms en français ou en anglais comptent !",
+  "Time": "Temps",
+  "{n} min": "{n} min",
+  "No timer": "Sans chrono",
+  "{n} countries to find": "{n} pays à trouver",
+  "{n} countries": "{n} pays",
+  "Give up": "Abandonner",
+  "Type a country…": "Écris un pays…",
+  "Countries are accepted as soon as you type them. No need to press Enter.": "Les pays sont acceptés dès que tu les écris. Pas besoin d'appuyer sur Entrée.",
+  "Already got {name}!": "Tu as déjà {name} !",
+  "🌍 You named them ALL!": "🌍 Tu les as TOUS trouvés !",
+  "You named {n} of {total}!": "Tu en as trouvé {n} sur {total} !",
+  "Missed ({n}): learn these for next time": "Oubliés ({n}) : apprends-les pour la prochaine fois",
+  "Found ({n})": "Trouvés ({n})",
+  "Half the World": "La moitié du monde",
+  "Type 100 countries in one World game": "Écris 100 pays dans une partie Monde",
+  "Know-It-All": "Je-sais-tout",
+  "Type all 195 countries in one World game": "Écris les 195 pays dans une partie Monde",
 };

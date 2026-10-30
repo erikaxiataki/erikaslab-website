@@ -7,6 +7,8 @@ export type Country = {
   nameFr: string;
   capital: string | null;
   capitalFr: string | null;
+  /** Every name a player may type for this country (English, French, alternate spellings). */
+  aliases: string[];
   region: string;
   subregion: string;
   area: number;

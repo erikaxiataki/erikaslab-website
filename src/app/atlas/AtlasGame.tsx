@@ -6,6 +6,7 @@ import { useCallback, useEffect, useState } from "react";
 import { Duel } from "@/components/atlas/Duel";
 import { Explore } from "@/components/atlas/Explore";
 import { Flashcards } from "@/components/atlas/Flashcards";
+import { NameAll } from "@/components/atlas/NameAll";
 import { OnlineRoom } from "@/components/atlas/OnlineRoom";
 import { ProfileScreen } from "@/components/atlas/ProfileScreen";
 import { ResultScreen } from "@/components/atlas/ResultScreen";
@@ -32,6 +33,7 @@ type Screen =
   | { name: "duel" }
   | { name: "explore" }
   | { name: "cards" }
+  | { name: "nameall" }
   | { name: "profile" };
 
 type InstallPrompt = Event & { prompt: () => Promise<void> };
@@ -210,6 +212,9 @@ export function AtlasGame() {
     case "cards":
       body = <Flashcards />;
       break;
+    case "nameall":
+      body = <NameAll onHome={() => go({ name: "home" })} />;
+      break;
     case "profile":
       body = <ProfileScreen />;
       break;
@@ -218,8 +223,12 @@ export function AtlasGame() {
   return (
     <div className="flex flex-col gap-4">
       <header className="sticky top-0 z-30 -mx-4 flex flex-wrap items-center gap-x-3 gap-y-2 bg-[#070b18]/90 px-4 py-2.5 backdrop-blur sm:mx-0 sm:rounded-b-2xl">
-        <button type="button" onClick={() => go({ name: "home" })} className="text-lg font-black tracking-tight text-white">
-          🌍 Atlas<span className="text-violet-400">Quest</span>
+        <button type="button" onClick={() => go({ name: "home" })} className="flex items-center gap-2 text-lg font-black tracking-tight text-white">
+          {/* eslint-disable-next-line @next/next/no-img-element -- static SVG logo */}
+          <img src="/icon.svg" alt="" width={32} height={32} className="size-8 rounded-lg" />
+          <span>
+            Atlas<span className="text-violet-400">Quest</span>
+          </span>
         </button>
         <button type="button" onClick={() => go({ name: "profile" })} className="ml-auto flex items-center gap-2 rounded-xl px-2 py-1 hover:bg-slate-800">
           <span className="text-2xl">{profile.avatar}</span>
@@ -290,7 +299,14 @@ function Home({ onGo, dailyDone, dailyStreak }: { onGo: (s: Screen) => void; dai
       className: "from-amber-500/30 to-orange-600/20 ring-amber-400/40 sm:col-span-2",
       badge: dailyStreak ? t("🔥 {n}-day streak", { n: dailyStreak }) : t("+25 🪙 bonus"),
     },
-    { emoji: "⚡", title: "Quick Play", text: "Map Hunt, Flags, Capitals or a Mix. 10 questions.", screen: { name: "setup", survival: false }, className: "from-violet-500/30 to-indigo-600/20 ring-violet-400/40" },
+    { emoji: "⚡", title: "Quick Play", text: "Map Hunt, Flags, Capitals, Name It or a Mix. 10 questions.", screen: { name: "setup", survival: false }, className: "from-violet-500/30 to-indigo-600/20 ring-violet-400/40" },
+    {
+      emoji: "⌨️",
+      title: "Name Them All",
+      text: "How many countries can you type before the timer runs out?",
+      screen: { name: "nameall" },
+      className: "from-teal-500/30 to-cyan-700/20 ring-teal-400/40",
+    },
     { emoji: "💀", title: "Survival", text: "Endless questions. Lose your lives and it's over.", screen: { name: "setup", survival: true }, className: "from-rose-500/30 to-red-700/20 ring-rose-400/40" },
     {
       emoji: "🌐",

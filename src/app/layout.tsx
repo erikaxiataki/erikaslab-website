@@ -13,8 +13,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Erika's Lab",
-  description: "Fun little projects to play and learn with.",
+  title: "Atlas Quest",
+  description: "World geography game: maps, flags and capitals in English and French. Jeu de géographie : cartes, drapeaux et capitales.",
 };
 
 export default function RootLayout({

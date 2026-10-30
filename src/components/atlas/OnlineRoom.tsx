@@ -3,7 +3,7 @@
 import { Crown, LogOut, Share2 } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { shareLink } from "@/lib/atlas/challenge";
-import { type Answer, DIFFICULTY, type Question, generateQuestions, randomSeed } from "@/lib/atlas/game";
+import { type Answer, type Question, generateQuestions, randomSeed, timeLimitMs } from "@/lib/atlas/game";
 import {
   type GameSettings,
   MAX_PLAYERS,
@@ -204,7 +204,7 @@ function RoomView({ code, onLeave, onHome }: { code: string; onLeave: () => void
 
   useEffect(() => {
     if (!isHost || phase !== "playing" || !game) return;
-    const wait = allAnswered ? REVEAL_MS : DIFFICULTY[game.settings.difficulty].seconds * 1000 + REVEAL_MS + 1500;
+    const wait = allAnswered ? REVEAL_MS : timeLimitMs(game.questions[qIndex]?.kind ?? "map", game.settings.difficulty) + REVEAL_MS + 1500;
     const t = setTimeout(() => advance(game.round, qIndex + 1), wait);
     return () => clearTimeout(t);
   }, [isHost, phase, game, qIndex, allAnswered, advance]);

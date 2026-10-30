@@ -133,10 +133,12 @@
   stroke: #0a1124;
   stroke-width: 0.6;
   vector-effect: non-scaling-stroke;
-  cursor: pointer;
   transition: fill 0.2s;
 }
-.atlas-country:hover {
+.atlas-interactive .atlas-country {
+  cursor: pointer;
+}
+.atlas-interactive .atlas-country:hover {
   fill: #64748b;
 }
 

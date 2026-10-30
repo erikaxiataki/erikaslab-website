@@ -1,8 +1,4 @@
-# Erika's Lab
-
-A Next.js site for small play-and-learn projects.
-
-## Atlas Quest (`/atlas`)
+# Atlas Quest
 
 A world geography game in **English and French** (EN/FR switch in the header; French browsers start in French).
 
@@ -13,9 +9,11 @@ A world geography game in **English and French** (EN/FR switch in the header; Fr
 - **Offline:** installable app (PWA). After the first visit, everything except online rooms works without internet.
 - **Kid-safe online:** private rooms only, no chat (emoji reactions only), generated nicknames, nothing stored on a server.
 
+The home page (`/`) asks for a language (Français / English) on the first visit, then goes straight to the game at `/atlas` on later visits.
+
 Online rooms need a free Supabase project; see [SETUP-ONLINE.md](SETUP-ONLINE.md).
 
-### Data
+## Data
 
 Country data, French names/capitals, and flags come from the `world-countries`, `world-atlas` and `flag-icons` packages. To regenerate them after updating those packages, run:
 

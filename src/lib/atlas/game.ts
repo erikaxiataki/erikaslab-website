@@ -1,6 +1,6 @@
 import { type Country, QUIZ_COUNTRIES, type Scope, distanceKm, inScope } from "./countries";
 
-export type QuestionKind = "map" | "flag" | "flag-reverse" | "capital";
+export type QuestionKind = "map" | "flag" | "flag-reverse" | "capital" | "name";
 export type Mode = QuestionKind | "mix";
 export type Difficulty = "easy" | "normal" | "hard";
 
@@ -9,6 +9,7 @@ export const MODES: { id: Mode; label: string; emoji: string; blurb: string }[] 
   { id: "flag", label: "Flag Quiz", emoji: "🏳️", blurb: "Whose flag is this?" },
   { id: "flag-reverse", label: "Flag Match", emoji: "🎌", blurb: "Pick the right flag" },
   { id: "capital", label: "Capitals", emoji: "🏛️", blurb: "Name the capital city" },
+  { id: "name", label: "Name It", emoji: "✍️", blurb: "Type the highlighted country" },
   { id: "mix", label: "Mix It Up", emoji: "🎲", blurb: "A bit of everything" },
 ];
 
@@ -20,6 +21,11 @@ export const DIFFICULTY: Record<
   normal: { label: "Normal", emoji: "🟡", seconds: 15, lives: 3, minArea: 20_000, mult: 1.5 },
   hard: { label: "Hard", emoji: "🔴", seconds: 8, lives: 1, minArea: 0, mult: 2.5 },
 };
+
+/** Typing takes longer than tapping, so Name It questions get extra time. */
+export function timeLimitMs(kind: QuestionKind, difficulty: Difficulty) {
+  return (DIFFICULTY[difficulty].seconds + (kind === "name" ? 10 : 0)) * 1000;
+}
 
 export type Question = {
   kind: QuestionKind;
@@ -70,7 +76,7 @@ function shuffle<T>(items: T[], rand: () => number) {
 }
 
 function pool(kind: QuestionKind, scope: Scope, difficulty: Difficulty) {
-  const base = QUIZ_COUNTRIES.filter((c) => inScope(c, scope) && (kind !== "map" || c.mapId));
+  const base = QUIZ_COUNTRIES.filter((c) => inScope(c, scope) && ((kind !== "map" && kind !== "name") || c.mapId));
   // Easier levels stick to bigger, better-known countries; relax if a region runs short.
   for (const minArea of [DIFFICULTY[difficulty].minArea, 20_000, 0]) {
     const p = base.filter((c) => c.area >= minArea);
@@ -101,6 +107,7 @@ function distractors(answer: Country, kind: QuestionKind, difficulty: Difficulty
   return picks;
 }
 
+// "Mix" sticks to tap-to-answer kinds; typing has its own mode.
 const KINDS: QuestionKind[] = ["map", "flag", "flag-reverse", "capital"];
 
 /** Deterministically builds a list of questions from a seed. */
@@ -129,7 +136,7 @@ export function generateQuestions(
     decks.set(kind, deck);
     const country = deck.pop() as Country;
     used.add(country.code);
-    const options = kind === "map" ? [] : shuffle([country, ...distractors(country, kind, difficulty, rand)], rand);
+    const options = kind === "map" || kind === "name" ? [] : shuffle([country, ...distractors(country, kind, difficulty, rand)], rand);
     questions.push({ kind, country, options });
   }
   return questions;
@@ -151,12 +158,13 @@ export function scoreAnswer(opts: {
   streak: number;
 }): Answer {
   const { question, picked, ms, difficulty, streak } = opts;
-  const limit = DIFFICULTY[difficulty].seconds * 1000;
+  const limit = timeLimitMs(question.kind, difficulty);
   const correct = picked?.code === question.country.code;
   const mult = DIFFICULTY[difficulty].mult;
   if (correct) {
     const speed = Math.max(0, 1 - ms / limit);
-    const points = Math.round((100 + 100 * speed) * mult * streakMultiplier(streak + 1));
+    const base = question.kind === "name" ? 150 : 100; // typing the name is harder than picking it
+    const points = Math.round((base + 100 * speed) * mult * streakMultiplier(streak + 1));
     return { correct, points, ms, pickedCode: picked?.code };
   }
   if (question.kind === "map" && picked) {

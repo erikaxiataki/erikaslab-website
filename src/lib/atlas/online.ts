@@ -11,7 +11,8 @@ export const REACTIONS = ["🔥", "😎", "😂", "👏", "😱", "GG"] as const
 const CODE_ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"; // no 0/O or 1/I look-alikes
 
 const URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+// Supabase's dashboard now calls this the "publishable" key; accept either name.
+const KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
 
 export const onlineEnabled = Boolean(URL && KEY);
 
