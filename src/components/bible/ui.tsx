@@ -62,7 +62,7 @@ export function SectionTitle({ children, className }: { children: React.ReactNod
 
 const CONFETTI_COLORS = ["#fbbf24", "#f472b6", "#34d399", "#60a5fa", "#fb923c", "#a78bfa"];
 
-/** CSS-only confetti burst (styles shared with Atlas Quest). Re-mount (change `key`) to fire again. */
+/** CSS-only confetti burst. Re-mount (change `key`) to fire again. */
 export function Confetti({ count = 80, seed = 1 }: { count?: number; seed?: number }) {
   const pieces = useMemo(() => {
     const rand = (i: number, k: number) => {
@@ -82,7 +82,7 @@ export function Confetti({ count = 80, seed = 1 }: { count?: number; seed?: numb
       {pieces.map((p, i) => (
         <span
           key={i}
-          className="atlas-confetti"
+          className="bible-confetti"
           style={{ left: `${p.left}%`, background: p.color, "--dx": `${p.dx}px`, "--dur": `${p.dur}s`, "--delay": `${p.delay}s` } as React.CSSProperties}
         />
       ))}

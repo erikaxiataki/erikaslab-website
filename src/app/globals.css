@@ -191,11 +191,37 @@
 }
 
 /* --- Bible Quest ---------------------------------------------------------- */
+@keyframes bible-pop {
+  0% { transform: scale(0.6); opacity: 0; }
+  60% { transform: scale(1.08); opacity: 1; }
+  100% { transform: scale(1); }
+}
 .bible-pop {
-  animation: atlas-pop 0.35s ease-out both;
+  animation: bible-pop 0.35s ease-out both;
+}
+
+@keyframes bible-shake {
+  0%, 100% { transform: translateX(0); }
+  20%, 60% { transform: translateX(-6px); }
+  40%, 80% { transform: translateX(6px); }
 }
 .bible-shake {
-  animation: atlas-shake 0.4s ease-in-out;
+  animation: bible-shake 0.4s ease-in-out;
+}
+
+@keyframes bible-confetti {
+  0% { transform: translate3d(0, -10vh, 0) rotate(0deg); opacity: 1; }
+  100% { transform: translate3d(var(--dx), 105vh, 0) rotate(720deg); opacity: 0.9; }
+}
+.bible-confetti {
+  position: fixed;
+  top: 0;
+  width: 10px;
+  height: 14px;
+  border-radius: 2px;
+  pointer-events: none;
+  z-index: 60;
+  animation: bible-confetti var(--dur) cubic-bezier(0.2, 0.6, 0.4, 1) var(--delay) forwards;
 }
 
 /* A book dropping onto the shelf. */
@@ -226,7 +252,8 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .bible-pop, .bible-shake, .bible-slot, .bible-bounce, .bible-glow {
+  .bible-pop, .bible-shake, .bible-slot, .bible-bounce, .bible-glow, .bible-confetti {
     animation: none;
   }
+  .bible-confetti { display: none; }
 }

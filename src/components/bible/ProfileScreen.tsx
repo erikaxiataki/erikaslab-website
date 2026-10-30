@@ -2,7 +2,7 @@
 
 import { Copy, Download, Upload } from "lucide-react";
 import { useState } from "react";
-import { play } from "@/lib/atlas/sound";
+import { play } from "@/lib/bible/sound";
 import { exportProfile, importProfile, mergeProfiles } from "@/lib/bible/backup";
 import { useI18n } from "@/lib/bible/i18n";
 import { BADGES, SHIELD_COST, levelFromXp, masteredCount, rankFor } from "@/lib/bible/progress";

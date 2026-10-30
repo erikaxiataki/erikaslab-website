@@ -4,6 +4,9 @@ import { BibleGame } from "./BibleGame";
 export const metadata: Metadata = {
   title: "Bible Quest: Learn the Books of the Bible",
   description: "A game for kids to learn the 66 books of the Bible in order, with quizzes, a quest map, XP and badges. In English, French and Portuguese.",
+  applicationName: "Bible Quest",
+  manifest: "/bible/manifest.webmanifest",
+  appleWebApp: { title: "Bible Quest", capable: true },
 };
 
 export const viewport: Viewport = {

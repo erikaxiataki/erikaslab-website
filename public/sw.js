@@ -1,6 +1,6 @@
-// Atlas Quest and Bible Quest service worker: makes the games playable offline after the first visit.
-const CACHE = "atlas-quest-v6";
-const PRECACHE = ["/", "/atlas", "/bible", "/flags/fr.svg", "/flags/gb.svg", "/flags/br.svg", "/manifest.webmanifest", "/icon.svg", "/icon-192.png", "/icon-512.png"];
+// Atlas Quest service worker: makes the game playable offline after the first visit.
+const CACHE = "atlas-quest-v5";
+const PRECACHE = ["/", "/atlas", "/flags/fr.svg", "/flags/gb.svg", "/flags/br.svg", "/manifest.webmanifest", "/icon.svg", "/icon-192.png", "/icon-512.png"];
 
 self.addEventListener("install", (event) => {
   event.waitUntil(

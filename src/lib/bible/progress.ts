@@ -32,16 +32,9 @@ export type Profile = {
 };
 
 const KEY = "bible-quest-profile-v1";
-const ATLAS_KEY = "atlas-quest-profile-v1";
 
-/** Start in the language chosen on the home page (shared with Atlas Quest), else the browser's. */
+/** Start in the browser's language when it is French or Portuguese. */
 function startLang(): Lang {
-  try {
-    const atlas = JSON.parse(localStorage.getItem(ATLAS_KEY) ?? "null");
-    if (atlas?.lang === "en" || atlas?.lang === "fr" || atlas?.lang === "pt") return atlas.lang;
-  } catch {
-    // Fall through to the browser language.
-  }
   const l = typeof navigator !== "undefined" ? navigator.language?.toLowerCase() ?? "" : "";
   return l.startsWith("fr") ? "fr" : l.startsWith("pt") ? "pt" : "en";
 }

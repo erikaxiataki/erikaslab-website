@@ -2,7 +2,7 @@
 
 import { Clock, Heart, X } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { play } from "@/lib/atlas/sound";
+import { play } from "@/lib/bible/sound";
 import { BOOKS, BOOK_BY_ID, type Book, SECTION_BY_ID, type Scope, type SectionId, sectionOf } from "@/lib/bible/books";
 import { type Answer, DIFFICULTY, type Difficulty, type Mode, type Question, comboFor, makeQuestions, scoreFor, timeLimitMs } from "@/lib/bible/game";
 import { useI18n } from "@/lib/bible/i18n";

@@ -2,7 +2,7 @@
 
 import { X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
-import { play } from "@/lib/atlas/sound";
+import { play } from "@/lib/bible/sound";
 import { type Scope, acceptedNames, booksIn, findBook, normalizeName } from "@/lib/bible/books";
 import { useI18n } from "@/lib/bible/i18n";
 import { HINT_COST } from "@/lib/bible/progress";

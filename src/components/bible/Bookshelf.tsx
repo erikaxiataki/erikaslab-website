@@ -2,7 +2,7 @@
 
 import { X } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
-import { play } from "@/lib/atlas/sound";
+import { play } from "@/lib/bible/sound";
 import { type Book, sectionOf } from "@/lib/bible/books";
 import { mulberry32, randomSeed, shuffle } from "@/lib/bible/game";
 import { useI18n } from "@/lib/bible/i18n";

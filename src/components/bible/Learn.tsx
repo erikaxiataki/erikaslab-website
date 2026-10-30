@@ -2,7 +2,7 @@
 
 import { ChevronLeft, ChevronRight, Play, Square } from "lucide-react";
 import { useEffect, useState } from "react";
-import { play } from "@/lib/atlas/sound";
+import { play } from "@/lib/bible/sound";
 import { SECTION_BY_ID, type SectionId, booksIn } from "@/lib/bible/books";
 import { useI18n } from "@/lib/bible/i18n";
 import { cn } from "@/lib/utils";

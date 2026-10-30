@@ -1,10 +1,10 @@
 "use client";
 
 import { useSyncExternalStore } from "react";
-import { setMuted } from "@/lib/atlas/sound";
 import { type Profile, loadProfile, saveProfile } from "./progress";
+import { setMuted } from "./sound";
 
-// One shared Bible Quest profile, backed by localStorage. Sounds are shared with Atlas Quest.
+// One shared Bible Quest profile, backed by localStorage.
 
 let current: Profile | null = null;
 const listeners = new Set<() => void>();

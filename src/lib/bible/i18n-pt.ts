@@ -222,4 +222,5 @@ export const PT: Record<string, string> = {
   "See every book you've brought back, and read its story card.": "Veja cada livro que você trouxe de volta e leia o cartão dele.",
   "Badges & Stats": "Medalhas e estatísticas",
   "Your level, badges, streak shields and save code.": "Seu nível, medalhas, escudos e código de salvamento.",
+  "Install": "Instalar",
 };

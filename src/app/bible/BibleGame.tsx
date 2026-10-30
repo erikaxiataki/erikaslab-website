@@ -1,6 +1,6 @@
 "use client";
 
-import { Volume2, VolumeX } from "lucide-react";
+import { Download, Volume2, VolumeX } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { Bookshelf, type ShelfResult } from "@/components/bible/Bookshelf";
 import { Learn } from "@/components/bible/Learn";
@@ -11,7 +11,7 @@ import { type QuizConfig, QuizGame } from "@/components/bible/Quiz";
 import { Results } from "@/components/bible/Results";
 import { TypeAll, type TypeResult } from "@/components/bible/TypeAll";
 import { Chip, GameButton, Panel, ProgressBar, SectionTitle } from "@/components/bible/ui";
-import { play } from "@/lib/atlas/sound";
+import { play } from "@/lib/bible/sound";
 import { BOOKS, type Book, SCOPES, SECTIONS, SECTION_BY_ID, type Scope, type SectionId, booksIn } from "@/lib/bible/books";
 import { DIFFICULTY, type Difficulty, MODES, type Mode, dailySeed, randomSeed } from "@/lib/bible/game";
 import { LANGS, useI18n } from "@/lib/bible/i18n";
@@ -33,6 +33,8 @@ import { getProfile, setProfile, useProfile } from "@/lib/bible/store";
 import { cn } from "@/lib/utils";
 
 type ShelfConfig = { books: Book[]; title: string; island?: SectionId; grand?: boolean; scope?: Scope; difficulty?: Difficulty };
+
+type InstallPrompt = Event & { prompt: () => Promise<void> };
 
 type Screen =
   | { name: "home" }
@@ -64,12 +66,19 @@ export function BibleGame() {
   const profile = useProfile();
   const { t, lang, num, section: sectionName } = useI18n();
   const [screen, setScreen] = useState<Screen>({ name: "home" });
+  const [install, setInstall] = useState<InstallPrompt | null>(null);
   const [settings, setSettings] = useState<{ mode: Mode; scope: Scope; difficulty: Difficulty }>({ mode: "next", scope: "law", difficulty: "easy" });
 
-  // Offline support: the site's service worker caches the game after the first visit.
+  // Offline support: Bible Quest's own service worker caches the game after the first visit.
   useEffect(() => {
     if (process.env.NODE_ENV !== "production" || !("serviceWorker" in navigator)) return;
-    navigator.serviceWorker.register("/sw.js", { scope: "/", updateViaCache: "none" }).catch(() => {});
+    navigator.serviceWorker.register("/bible-sw.js", { scope: "/bible", updateViaCache: "none" }).catch(() => {});
+    const onPrompt = (e: Event) => {
+      e.preventDefault();
+      setInstall(e as InstallPrompt);
+    };
+    window.addEventListener("beforeinstallprompt", onPrompt);
+    return () => window.removeEventListener("beforeinstallprompt", onPrompt);
   }, []);
 
   useEffect(() => {
@@ -166,7 +175,7 @@ export function BibleGame() {
   };
 
   if (!profile) {
-    return <div className="grid min-h-[60vh] place-items-center text-stone-400">📜</div>;
+    return <div className="grid min-h-[60vh] place-items-center text-stone-400">📖</div>;
   }
 
   const { level, into, need } = levelFromXp(profile.xp);
@@ -298,7 +307,8 @@ export function BibleGame() {
     <div className="flex flex-col gap-4">
       <header className="sticky top-0 z-30 -mx-4 flex flex-wrap items-center gap-x-3 gap-y-2 bg-[#140e09]/90 px-4 py-2.5 backdrop-blur sm:mx-0 sm:rounded-b-2xl">
         <button type="button" onClick={() => go({ name: "home" })} className="flex items-center gap-2 text-lg font-black tracking-tight text-white">
-          <span className="grid size-8 place-items-center rounded-lg bg-gradient-to-br from-amber-400 to-orange-600 text-lg">📜</span>
+          {/* eslint-disable-next-line @next/next/no-img-element -- static SVG logo */}
+          <img src="/bible/icon.svg" alt="" width={32} height={32} className="size-8 rounded-lg" />
           <span>
             Bible<span className="text-amber-400">Quest</span>
           </span>
@@ -338,6 +348,15 @@ export function BibleGame() {
         >
           {profile.muted ? <VolumeX className="size-5" /> : <Volume2 className="size-5" />}
         </button>
+        {install && (
+          <button
+            type="button"
+            onClick={() => install.prompt().finally(() => setInstall(null))}
+            className="inline-flex items-center gap-1 rounded-lg bg-amber-400/20 px-2 py-1 text-xs font-bold text-amber-200 hover:bg-amber-400/30"
+          >
+            <Download className="size-4" /> {t("Install")}
+          </button>
+        )}
       </header>
       {screen.name !== "home" && !playing && (
         <button type="button" onClick={() => go({ name: "home" })} className="self-start text-sm font-semibold text-stone-400 hover:text-white">
