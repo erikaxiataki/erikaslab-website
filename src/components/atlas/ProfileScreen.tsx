@@ -9,6 +9,7 @@ import { BADGES, levelFromXp, newProfile, rankFor } from "@/lib/atlas/progress";
 import { setProfile, useProfile } from "@/lib/atlas/store";
 import { cn } from "@/lib/utils";
 import { masteryColors } from "./Explore";
+import { InitialsField } from "./OnlineRoom";
 import { SaveRestore } from "./SaveRestore";
 import { GameButton, Panel, ProgressBar, SectionTitle } from "./ui";
 import { WorldMap } from "./WorldMap";
@@ -64,6 +65,8 @@ export function ProfileScreen() {
           </div>
         </div>
       </Panel>
+
+      <InitialsField />
 
       <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
         {[

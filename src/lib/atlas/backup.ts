@@ -1,6 +1,6 @@
 import { BY_CODE, SCOPES } from "./countries";
 import { DIFFICULTY, MODES } from "./game";
-import { isSafeAvatar, isSafeNickname } from "./identity";
+import { isSafeAvatar, isSafeInitials, isSafeNickname } from "./identity";
 import { BADGES, type Profile, newProfile } from "./progress";
 
 // Save codes: the whole profile packed into a copy-pasteable string, so progress can move
@@ -61,6 +61,7 @@ function sanitize(raw: unknown): Profile | null {
   for (const k of COUNTERS) p[k] = count(r[k]);
   if (isSafeNickname(r.name)) p.name = r.name;
   if (isSafeAvatar(r.avatar)) p.avatar = r.avatar;
+  if (isSafeInitials(r.initials)) p.initials = r.initials;
   if (r.lang === "en" || r.lang === "fr" || r.lang === "pt") p.lang = r.lang;
   if (typeof r.dailyLast === "string" && /^\d{4}-\d{2}-\d{2}$/.test(r.dailyLast)) p.dailyLast = r.dailyLast;
   if (Array.isArray(r.badges)) p.badges = BADGES.map((b) => b.id).filter((id) => (r.badges as unknown[]).includes(id));
@@ -101,6 +102,7 @@ export function mergeProfiles(current: Profile, restored: Profile): Profile {
   if (current.gamesPlayed === 0) {
     p.name = restored.name;
     p.avatar = restored.avatar;
+    p.initials = current.initials || restored.initials;
   }
   for (const k of COUNTERS) p[k] = Math.max(current[k], restored[k]);
   // The daily streak belongs to whichever save played most recently.
