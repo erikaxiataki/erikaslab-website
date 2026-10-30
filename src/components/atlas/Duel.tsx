@@ -1,13 +1,13 @@
 "use client";
 
 import { Dices } from "lucide-react";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useState } from "react";
 import { type Answer, generateQuestions, randomSeed } from "@/lib/atlas/game";
 import { useI18n } from "@/lib/atlas/i18n";
 import { AVATARS, randomAvatar, randomNickname } from "@/lib/atlas/identity";
 import { applyRound } from "@/lib/atlas/progress";
 import { play } from "@/lib/atlas/sound";
-import { setProfile, useProfile } from "@/lib/atlas/store";
+import { getProfile, setProfile, useProfile } from "@/lib/atlas/store";
 import { cn } from "@/lib/utils";
 import { QuestionView } from "./QuestionView";
 import { type Settings, SettingsPicker } from "./SettingsPicker";
@@ -97,10 +97,10 @@ function DuelGame({
   onDone: () => void;
 }) {
   const { t, nick, num } = useI18n();
-  const questions = useMemo(
-    () => generateQuestions(seed, settings.mode, settings.scope, settings.difficulty, PER_PLAYER * 2),
-    [seed, settings],
-  );
+  const [questions] = useState(() => {
+    const p = getProfile();
+    return generateQuestions(seed, settings.mode, settings.scope, settings.difficulty, PER_PLAYER * 2, { recent: p.recent, mastery: p.mastery });
+  });
   const [index, setIndex] = useState(0);
   const [answers, setAnswers] = useState<Answer[]>([]);
   const [handoff, setHandoff] = useState(true);

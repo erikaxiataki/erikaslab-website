@@ -29,6 +29,11 @@ function subscribe(l: () => void) {
   return () => listeners.delete(l);
 }
 
+/** The current profile, read once (e.g. to snapshot it when a game starts). */
+export function getProfile() {
+  return get();
+}
+
 /** Null during server render / first hydration pass, then the saved profile. */
 export function useProfile(): Profile | null {
   return useSyncExternalStore(subscribe, get, () => null);

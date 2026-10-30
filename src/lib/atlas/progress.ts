@@ -26,6 +26,8 @@ export type Profile = {
   mastery: Record<string, number>;
   /** Best score per "mode|scope|difficulty". */
   best: Record<string, number>;
+  /** Countries asked in recent solo games, oldest first, so new games can pick different ones. */
+  recent: string[];
   /** Name Them All: most countries typed per "scope|minutes" (0 minutes = no timer). */
   allBest: Record<string, number>;
   muted: boolean;
@@ -58,6 +60,7 @@ export function newProfile(): Profile {
     mastery: {},
     best: {},
     allBest: {},
+    recent: [],
     muted: false,
     lang: typeof navigator !== "undefined" && navigator.language?.toLowerCase().startsWith("fr") ? "fr" : "en",
   };
@@ -160,6 +163,8 @@ export type RoundResult = {
   fixedLength?: boolean;
 };
 
+const RECENT_SIZE = 80;
+
 export type Rewards = { xp: number; coins: number; newBadges: Badge[]; leveledUp: boolean; newBest: boolean };
 
 export function bestKey(mode: Mode, scope: Scope, difficulty: Difficulty, endless = false) {
@@ -187,6 +192,8 @@ export function applyRound(
   });
   p.totalCorrect += correct;
   p.gamesPlayed++;
+  const asked = r.questions.map((q) => q.country.code);
+  p.recent = [...(profile.recent ?? []).filter((c) => !asked.includes(c)), ...asked].slice(-RECENT_SIZE);
   p.bestStreak = Math.max(p.bestStreak, r.bestStreak);
   if (r.fixedLength && correct === r.answers.length && r.answers.length >= 10) p.perfectRounds++;
 
