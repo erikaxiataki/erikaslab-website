@@ -50,7 +50,8 @@ export const FR: Record<string, string> = {
   "Game": "Jeu",
   "Where": "Où",
   "Difficulty": "Difficulté",
-  "Big, well-known countries. Lots of time.": "De grands pays connus. Plein de temps.",
+  "Big, well-known countries. Lots of time. The map zooms to the right continent.":
+    "De grands pays connus. Plein de temps. La carte zoome sur le bon continent.",
   "Most countries, trickier choices. 1.5× points.": "La plupart des pays, des choix plus durs. Points ×1,5.",
   "Every country, even tiny islands. Choices from neighbors. 2.5× points!": "Tous les pays, même les petites îles. Choix entre voisins. Points ×2,5 !",
 

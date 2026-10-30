@@ -100,6 +100,8 @@ export function QuestionView({ question, difficulty, scope, streak, onAnswer, hi
     if (picked && !answer.correct) colors[picked] = MAP_COLORS.wrong;
     colors[country.code] = MAP_COLORS.correct;
   }
+  // On Easy, a whole-world Map Hunt starts zoomed to the right continent so countries are big enough to tap.
+  const viewScope = kind === "map" && difficulty === "easy" && scope === "World" && !answer ? (country.region as Scope) : scope;
   // Nudge the hint zoom off-center so it doesn't point straight at the answer.
   const offset = ((country.code.charCodeAt(0) * 7 + country.code.charCodeAt(1) * 13) % 21) - 10;
 
@@ -287,7 +289,7 @@ export function QuestionView({ question, difficulty, scope, streak, onAnswer, hi
       )}
 
       <WorldMap
-        scope={scope}
+        scope={viewScope}
         colors={colors}
         onPick={kind === "map" && !answer ? submit : undefined}
         focus={answer || kind === "name" ? wideFocus(country, !!answer) : hintFocus}
