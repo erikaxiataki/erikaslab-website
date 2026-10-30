@@ -16,6 +16,7 @@ import {
   onlineEnabled,
 } from "@/lib/atlas/online";
 import { useI18n } from "@/lib/atlas/i18n";
+import { PLAYER_COLORS, isSafeInitials, normalizeInitials } from "@/lib/atlas/identity";
 import { applyRound } from "@/lib/atlas/progress";
 import { play } from "@/lib/atlas/sound";
 import { setProfile, useProfile } from "@/lib/atlas/store";
@@ -52,6 +53,19 @@ export function OnlineRoom({ initialCode, onHome }: { initialCode?: string | nul
 
   if (!profile) return null;
 
+  const hasInitials = isSafeInitials(profile.initials);
+
+  // Friends need initials to recognize each other, so ask for them first (even when arriving with an invite link).
+  if (code && !hasInitials) {
+    return (
+      <Panel className="flex flex-col gap-4">
+        <SectionTitle>{t("🌐 Play online with friends")}</SectionTitle>
+        <InitialsField />
+        <p className="text-sm text-slate-400">{t("Then you'll join room {code}.", { code })}</p>
+      </Panel>
+    );
+  }
+
   if (!code) {
     const joinCode = normalizeRoomCode(joinInput);
     return (
@@ -60,11 +74,12 @@ export function OnlineRoom({ initialCode, onHome }: { initialCode?: string | nul
         <p className="text-slate-300">
           {t("You'll play as")} <b className="text-white">{profile.avatar} {nick(profile.name)}</b>. {t("Only friends with your room code can join.")}
         </p>
+        <InitialsField />
         <div className="grid gap-4 sm:grid-cols-2">
           <div className="flex flex-col gap-2 rounded-xl bg-slate-800 p-4">
             <p className="font-bold text-white">{t("🏠 Host a game")}</p>
             <p className="text-sm text-slate-400">{t("Get a code and send it to your friends.")}</p>
-            <GameButton tone="go" onClick={() => setCode(makeRoomCode())}>
+            <GameButton tone="go" disabled={!hasInitials} onClick={() => setCode(makeRoomCode())}>
               {t("Create room")}
             </GameButton>
           </div>
@@ -72,7 +87,7 @@ export function OnlineRoom({ initialCode, onHome }: { initialCode?: string | nul
             className="flex flex-col gap-2 rounded-xl bg-slate-800 p-4"
             onSubmit={(e) => {
               e.preventDefault();
-              if (joinCode.length === 5) setCode(joinCode);
+              if (joinCode.length === 5 && hasInitials) setCode(joinCode);
             }}
           >
             <label htmlFor="room-code" className="font-bold text-white">
@@ -86,12 +101,12 @@ export function OnlineRoom({ initialCode, onHome }: { initialCode?: string | nul
               autoComplete="off"
               className="rounded-xl bg-slate-900 px-3 py-2 text-center font-mono text-2xl tracking-[0.4em] text-white uppercase ring-1 ring-white/10 outline-none focus:ring-violet-400"
             />
-            <GameButton type="submit" disabled={joinCode.length !== 5}>
+            <GameButton type="submit" disabled={joinCode.length !== 5 || !hasInitials}>
               {t("Join room")}
             </GameButton>
           </form>
         </div>
-        <p className="text-xs text-slate-500">{t("🛡️ Safe mode: no chat, no real names, just nicknames and emoji reactions. Rooms vanish when everyone leaves.")}</p>
+        <p className="text-xs text-slate-500">{t("🛡️ Safe mode: no chat, just initials, nicknames and emoji reactions. Rooms vanish when everyone leaves.")}</p>
       </Panel>
     );
   }
@@ -109,7 +124,8 @@ function RoomView({ code, onLeave, onHome }: { code: string; onLeave: () => void
   const [joinedAt] = useState(() => Date.now());
   const name = profile?.name ?? "";
   const avatar = profile?.avatar ?? "";
-  const me = useMemo<Player>(() => ({ id, name, avatar, joinedAt }), [id, name, avatar, joinedAt]);
+  const initials = profile?.initials ?? "";
+  const me = useMemo<Player>(() => ({ id, name, avatar, initials, joinedAt }), [id, name, avatar, initials, joinedAt]);
 
   const roomRef = useRef<Room | null>(null);
   const gameRef = useRef<Game | null>(null);
@@ -313,12 +329,20 @@ function RoomView({ code, onLeave, onHome }: { code: string; onLeave: () => void
           const r = reactions.filter((x) => x.id === p.id).at(-1);
           const answered = phase === "playing" && current[p.id];
           return (
-            <li key={p.id} className={cn("relative flex items-center gap-2 rounded-lg px-2 py-1.5", p.id === me.id ? "bg-violet-500/20" : "bg-slate-800/70")}>
+            <li
+              key={p.id}
+              className={cn("relative flex items-center gap-2 rounded-lg border-l-4 px-2 py-1.5", p.id === me.id ? "bg-violet-500/20" : "bg-slate-800/70")}
+              style={{ borderLeftColor: colorOf(players, p.id) }}
+            >
               {game && <span className="w-4 text-xs font-black text-slate-400">{i + 1}</span>}
+              <InitialsBadge initials={p.initials} color={colorOf(players, p.id)} />
               <span className="text-2xl">{p.avatar}</span>
-              <span className="truncate font-semibold text-white">
-                {nick(p.name)}
-                {p.id === me.id && <span className="text-xs text-slate-400"> {t("(you)")}</span>}
+              <span className="flex min-w-0 flex-col leading-tight">
+                <span className="truncate font-black text-white">
+                  {p.initials || "?"}
+                  {p.id === me.id && <span className="text-xs font-semibold text-violet-300"> {t("(you)")}</span>}
+                </span>
+                <span className="truncate text-xs text-slate-400">{nick(p.name)}</span>
               </span>
               {p.id === players[0]?.id && <Crown className="size-4 shrink-0 text-amber-300" aria-label={t("Host")} />}
               {answered && <span title={t("Answered")}>✔️</span>}
@@ -345,6 +369,10 @@ function RoomView({ code, onLeave, onHome }: { code: string; onLeave: () => void
   return (
     <div className="flex flex-col gap-3">
       <Panel className="flex flex-wrap items-center gap-3 py-3">
+        <span className="flex items-center gap-1.5 rounded-full bg-slate-800 py-1 pr-3 pl-1 text-sm font-bold text-white" title={t("This is you")}>
+          <InitialsBadge initials={me.initials} color={colorOf(players, me.id)} />
+          {me.avatar} {t("You")}
+        </span>
         <span className="text-sm text-slate-400">{t("Room code")}</span>
         <span className="font-mono text-2xl font-black tracking-[0.3em] text-amber-300">{code}</span>
         <button type="button" onClick={shareCode} className="inline-flex items-center gap-1 rounded-lg bg-slate-800 px-2 py-1 text-sm text-slate-200 hover:bg-slate-700">
@@ -373,7 +401,7 @@ function RoomView({ code, onLeave, onHome }: { code: string; onLeave: () => void
             ) : (
               <Panel className="flex flex-col items-center gap-2 py-12 text-center">
                 <span className="animate-bounce text-5xl">⏳</span>
-                <p className="text-xl font-bold text-white">{t("Waiting for {name} to start…", { name: players[0] ? nick(players[0].name) : t("the host") })}</p>
+                <p className="text-xl font-bold text-white">{t("Waiting for {name} to start…", { name: players[0] ? players[0].initials || nick(players[0].name) : t("the host") })}</p>
                 <p className="text-sm text-slate-400">{t("Send some reactions while you wait!")}</p>
               </Panel>
             ))}
@@ -409,7 +437,8 @@ function RoomView({ code, onLeave, onHome }: { code: string; onLeave: () => void
                   return (
                     <div key={p.id} className="flex w-24 flex-col items-center">
                       <span className="text-4xl">{p.avatar}</span>
-                      <span className="w-full truncate text-sm font-bold text-white">{nick(p.name)}</span>
+                      <InitialsBadge initials={p.initials} color={colorOf(players, p.id)} size="lg" />
+                      <span className="w-full truncate text-xs text-slate-400">{nick(p.name)}</span>
                       <span className="text-xs text-slate-300 tabular-nums">{num(totals[p.id] ?? 0)}</span>
                       <div
                         className={cn(
@@ -456,5 +485,63 @@ function Countdown() {
         {n > 0 ? n : t("GO!")}
       </span>
     </Panel>
+  );
+}
+
+/** Each player's color: by join order, so it stays the same for everyone in the room. */
+function colorOf(players: Player[], id: string) {
+  const i = players.findIndex((p) => p.id === id);
+  return PLAYER_COLORS[(i < 0 ? 0 : i) % PLAYER_COLORS.length];
+}
+
+/** Initials in a colored circle, the main way friends tell each other apart. */
+function InitialsBadge({ initials, color, size = "md" }: { initials: string; color: string; size?: "md" | "lg" }) {
+  return (
+    <span
+      className={cn(
+        "grid shrink-0 place-items-center rounded-full font-black text-slate-950 ring-2 ring-white/30",
+        size === "lg" ? "size-12 text-lg" : "size-8 text-xs",
+      )}
+      style={{ background: color }}
+    >
+      {initials || "?"}
+    </span>
+  );
+}
+
+/** Lets the player pick the 2–3 letters friends will see in online rooms. */
+export function InitialsField() {
+  const profile = useProfile();
+  const { t } = useI18n();
+  const [draft, setDraft] = useState(profile?.initials ?? "");
+  const value = normalizeInitials(draft);
+  const valid = isSafeInitials(value);
+  return (
+    <div className="flex flex-col gap-2 rounded-xl bg-violet-500/10 p-4 ring-1 ring-violet-400/30">
+      <label htmlFor="initials" className="font-bold text-white">
+        {t("Your initials")}
+      </label>
+      <p className="text-sm text-slate-400">{t("2 or 3 letters so your friends know it's you (like JT).")}</p>
+      <div className="flex items-center gap-3">
+        <span className="text-3xl">{profile?.avatar}</span>
+        <InitialsBadge initials={value} color={PLAYER_COLORS[1]} size="lg" />
+        <input
+          id="initials"
+          value={value}
+          onChange={(e) => {
+            const next = normalizeInitials(e.target.value);
+            setDraft(next);
+            if (isSafeInitials(next)) setProfile((p) => ({ ...p, initials: next }));
+          }}
+          maxLength={3}
+          autoComplete="off"
+          autoCapitalize="characters"
+          spellCheck={false}
+          placeholder="AB"
+          className="w-28 rounded-xl bg-slate-900 px-3 py-2 text-center font-mono text-2xl font-black tracking-[0.3em] text-white uppercase ring-1 ring-white/10 outline-none focus:ring-violet-400"
+        />
+      </div>
+      {value.length >= 2 && !valid && <p className="text-sm text-red-300">{t("Please choose different letters.")}</p>}
+    </div>
   );
 }

@@ -1,7 +1,7 @@
 import type { RealtimeChannel, SupabaseClient } from "@supabase/supabase-js";
 import { SCOPES, type Scope } from "./countries";
 import { DIFFICULTY, type Difficulty, MODES, type Mode } from "./game";
-import { isSafeAvatar, isSafeNickname } from "./identity";
+import { isSafeAvatar, isSafeInitials, isSafeNickname } from "./identity";
 
 // Live rooms use Supabase Realtime Broadcast + Presence only: nothing is written to a database,
 // and a room disappears as soon as everyone leaves.
@@ -39,7 +39,7 @@ export function normalizeRoomCode(input: string) {
     .slice(0, 5);
 }
 
-export type Player = { id: string; name: string; avatar: string; joinedAt: number };
+export type Player = { id: string; name: string; avatar: string; initials: string; joinedAt: number };
 
 export type GameSettings = { seed: number; mode: Mode; scope: Scope; difficulty: Difficulty; count: number };
 
@@ -110,7 +110,7 @@ export class Room {
       const players = Object.values(state)
         .map((metas) => metas[0])
         .filter((p): p is typeof p & Player => !!p && isSafeNickname(p.name) && isSafeAvatar(p.avatar))
-        .map(({ id, name, avatar, joinedAt }) => ({ id, name, avatar, joinedAt }))
+        .map(({ id, name, avatar, initials, joinedAt }) => ({ id, name, avatar, initials: isSafeInitials(initials) ? initials : "", joinedAt }))
         .sort((a, b) => a.joinedAt - b.joinedAt || a.id.localeCompare(b.id));
       // The room is full for whoever joined last.
       const mine = players.findIndex((p) => p.id === this.me.id);

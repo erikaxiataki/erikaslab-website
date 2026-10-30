@@ -264,6 +264,13 @@ export const PT: Record<string, string> = {
   "That save code doesn't look right. Check you copied all of it.": "Esse código não parece certo. Confira se copiou ele inteiro.",
   "Progress restored! Level {level}, {badges} badges.": "Progresso restaurado! Nível {level}, {badges} medalhas.",
 
+  "Your initials": "Suas iniciais",
+  "2 or 3 letters so your friends know it's you (like JT).": "2 ou 3 letras para seus amigos saberem que é você (tipo JT).",
+  "Please choose different letters.": "Escolha outras letras, por favor.",
+  "Then you'll join room {code}.": "Depois você vai entrar na sala {code}.",
+  "🛡️ Safe mode: no chat, just initials, nicknames and emoji reactions. Rooms vanish when everyone leaves.":
+    "🛡️ Modo seguro: sem chat, só iniciais, apelidos e reações com emoji. As salas somem quando todos saem.",
+  "This is you": "Este é você",
   // Online
   "Online rooms aren't set up yet": "As salas online ainda não estão ativadas",
   "A grown-up needs to connect the free online service first (see SETUP-ONLINE.md). Until then, try a ⚔️ Duel on one device or send a 🎯 challenge link!":

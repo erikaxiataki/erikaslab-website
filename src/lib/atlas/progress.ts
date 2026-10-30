@@ -5,6 +5,8 @@ import { randomAvatar, randomNickname } from "./identity";
 export type Profile = {
   name: string;
   avatar: string;
+  /** 2–3 letters shown to friends in online rooms ("" until chosen). */
+  initials: string;
   xp: number;
   coins: number;
   gamesPlayed: number;
@@ -47,6 +49,7 @@ export function newProfile(): Profile {
   return {
     name: randomNickname(),
     avatar: randomAvatar(),
+    initials: "",
     xp: 0,
     coins: 100,
     gamesPlayed: 0,

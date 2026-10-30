@@ -27,6 +27,30 @@ export function isSafeNickname(name: unknown): name is string {
   return rest.length === 0 && ADJECTIVES.includes(a) && NOUNS.includes(b);
 }
 
+// Initials let friends recognize each other in online rooms without typing a full name.
+// Only 2–3 plain letters, minus combinations that are rude in English, French or Portuguese.
+const BLOCKED_INITIALS = new Set([
+  "ASS", "FUK", "FUC", "FCK", "SEX", "KKK", "NAZ", "FAG", "CUM", "TIT", "DIK", "DIC", "WTF", "STFU", "GAY", "XXX", "POO",
+  "CUL", "CON", "PUT", "BIT", "FDP", "NTM", "TG", "VTF", "MRD", "PD",
+  "PQP", "VSF", "CRL", "FDP", "BCT", "KCT", "PNC", "VTC", "VAI",
+]);
+
+export function normalizeInitials(input: string) {
+  return input
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toUpperCase()
+    .replace(/[^A-Z]/g, "")
+    .slice(0, 3);
+}
+
+export function isSafeInitials(value: unknown): value is string {
+  return typeof value === "string" && /^[A-Z]{2,3}$/.test(value) && !BLOCKED_INITIALS.has(value);
+}
+
+/** A distinct color per player in a room, so two players with the same initials still look different. */
+export const PLAYER_COLORS = ["#f472b6", "#60a5fa", "#facc15", "#34d399", "#fb923c", "#a78bfa", "#f87171", "#2dd4bf"];
+
 export function isSafeAvatar(avatar: unknown): avatar is string {
   return typeof avatar === "string" && AVATARS.includes(avatar);
 }
