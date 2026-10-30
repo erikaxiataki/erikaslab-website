@@ -17,7 +17,7 @@ export const DIFFICULTY: Record<
   Difficulty,
   { label: string; emoji: string; seconds: number; lives: number; minArea: number; mult: number }
 > = {
-  easy: { label: "Easy", emoji: "🟢", seconds: 30, lives: 3, minArea: 250_000, mult: 1 },
+  easy: { label: "Easy", emoji: "🟢", seconds: 30, lives: 3, minArea: 100_000, mult: 1 },
   normal: { label: "Normal", emoji: "🟡", seconds: 15, lives: 3, minArea: 20_000, mult: 1.5 },
   hard: { label: "Hard", emoji: "🔴", seconds: 8, lives: 1, minArea: 0, mult: 2.5 },
 };
@@ -80,7 +80,7 @@ function pool(kind: QuestionKind, scope: Scope, difficulty: Difficulty) {
   // Easier levels stick to bigger, better-known countries; relax if a region runs short.
   for (const minArea of [DIFFICULTY[difficulty].minArea, 20_000, 0]) {
     const p = base.filter((c) => c.area >= minArea);
-    if (p.length >= 12) return p;
+    if (p.length >= 15) return p;
   }
   return base;
 }
@@ -110,15 +110,35 @@ function distractors(answer: Country, kind: QuestionKind, difficulty: Difficulty
 // "Mix" sticks to tap-to-answer kinds; typing has its own mode.
 const KINDS: QuestionKind[] = ["map", "flag", "flag-reverse", "capital"];
 
-/** Deterministically builds a list of questions from a seed. */
+/**
+ * What the player has seen and knows, used to keep solo games fresh: countries asked recently go to
+ * the back of the queue, and ones they don't know well yet come up more often.
+ */
+export type Freshness = { recent: string[]; mastery: Record<string, number> };
+
+/**
+ * Builds a list of questions from a seed. Without `fresh` it's fully deterministic (daily challenge,
+ * challenge links and online rooms rely on everyone getting the same questions).
+ */
 export function generateQuestions(
   seed: number,
   mode: Mode,
   scope: Scope,
   difficulty: Difficulty,
   count: number,
+  fresh?: Freshness,
 ): Question[] {
   const rand = mulberry32(seed);
+  // Newest recent country gets the biggest push back; the oldest barely any.
+  const recency = new Map(fresh?.recent.map((code, i, all) => [code, (i + 1) / all.length]));
+  // Deck order: the end of the array is asked first.
+  const order = (list: Country[]) =>
+    fresh
+      ? list
+          .map((c) => ({ c, key: rand() + 1.5 * (recency.get(c.code) ?? 0) + 0.15 * (fresh.mastery[c.code] ?? 0) }))
+          .sort((a, b) => b.key - a.key)
+          .map((x) => x.c)
+      : shuffle(list, rand);
   const decks = new Map<QuestionKind, Country[]>();
   const questions: Question[] = [];
   // Avoid repeating a country until each kind's pool runs out (matters in "mix", where pools overlap).
@@ -127,10 +147,10 @@ export function generateQuestions(
     const kind = mode === "mix" ? KINDS[Math.floor(rand() * KINDS.length)] : mode;
     let deck = decks.get(kind)?.filter((c) => !used.has(c.code));
     if (!deck?.length) {
-      deck = shuffle(pool(kind, scope, difficulty), rand).filter((c) => !used.has(c.code));
+      deck = order(pool(kind, scope, difficulty)).filter((c) => !used.has(c.code));
       if (!deck.length) {
         used = new Set();
-        deck = shuffle(pool(kind, scope, difficulty), rand);
+        deck = order(pool(kind, scope, difficulty));
       }
     }
     decks.set(kind, deck);

@@ -130,7 +130,7 @@ export function AtlasGame() {
             <GameButton
               tone="go"
               className="text-lg"
-              onClick={() => go({ name: "solo", config: { ...settings, seed: randomSeed(), count: 10, survival: screen.survival } })}
+              onClick={() => go({ name: "solo", config: { ...settings, seed: randomSeed(), count: 10, survival: screen.survival, fresh: true } })}
             >
               {t("▶ Play!")}
             </GameButton>

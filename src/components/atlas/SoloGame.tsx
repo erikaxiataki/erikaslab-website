@@ -6,6 +6,7 @@ import type { Scope } from "@/lib/atlas/countries";
 import { type Answer, DIFFICULTY, type Difficulty, type Mode, generateQuestions, streakMultiplier } from "@/lib/atlas/game";
 import { useI18n } from "@/lib/atlas/i18n";
 import type { RoundResult } from "@/lib/atlas/progress";
+import { getProfile } from "@/lib/atlas/store";
 import { QuestionView } from "./QuestionView";
 import { GameButton, Panel } from "./ui";
 
@@ -18,6 +19,8 @@ export type SoloConfig = {
   count: number;
   survival?: boolean;
   daily?: boolean;
+  /** Prefer countries not asked recently (random games only; daily and challenges must repeat exactly). */
+  fresh?: boolean;
 };
 
 export function streaks(answers: Answer[]) {
@@ -43,10 +46,11 @@ export function SoloGame({
 }) {
   const { mode, scope, difficulty, seed, survival } = config;
   const { t } = useI18n();
-  const questions = useMemo(
-    () => generateQuestions(seed, mode, scope, difficulty, survival ? 400 : config.count),
-    [seed, mode, scope, difficulty, survival, config.count],
-  );
+  // Built once per game: the profile changes mid-game (coins, progress) and must not reshuffle it.
+  const [questions] = useState(() => {
+    const p = config.fresh ? getProfile() : null;
+    return generateQuestions(seed, mode, scope, difficulty, survival ? 400 : config.count, p ? { recent: p.recent, mastery: p.mastery } : undefined);
+  });
   const [index, setIndex] = useState(0);
   const [answers, setAnswers] = useState<Answer[]>([]);
   const { streak, bestStreak } = useMemo(() => streaks(answers), [answers]);
