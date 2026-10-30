@@ -80,6 +80,12 @@ function sanitize(raw: unknown): Profile | null {
       if (valid) p.best[key] = count(score);
     }
   }
+  if (r.allBest && typeof r.allBest === "object") {
+    for (const [key, found] of Object.entries(r.allBest)) {
+      const [scope, minutes, ...rest] = key.split("|");
+      if ((SCOPES as readonly string[]).includes(scope) && /^\d{1,3}$/.test(minutes ?? "") && !rest.length) p.allBest[key] = count(found);
+    }
+  }
   return p;
 }
 
@@ -90,7 +96,7 @@ function sanitize(raw: unknown): Profile | null {
  * and sound settings stay as they are on this device.
  */
 export function mergeProfiles(current: Profile, restored: Profile): Profile {
-  const p: Profile = { ...current, mastery: { ...current.mastery }, best: { ...current.best } };
+  const p: Profile = { ...current, mastery: { ...current.mastery }, best: { ...current.best }, allBest: { ...current.allBest } };
   if (current.gamesPlayed === 0) {
     p.name = restored.name;
     p.avatar = restored.avatar;
@@ -106,5 +112,6 @@ export function mergeProfiles(current: Profile, restored: Profile): Profile {
   p.badges = BADGES.map((b) => b.id).filter((id) => current.badges.includes(id) || restored.badges.includes(id));
   for (const [code, level] of Object.entries(restored.mastery)) p.mastery[code] = Math.max(p.mastery[code] ?? 0, level);
   for (const [key, score] of Object.entries(restored.best)) p.best[key] = Math.max(p.best[key] ?? 0, score);
+  for (const [key, found] of Object.entries(restored.allBest)) p.allBest[key] = Math.max(p.allBest[key] ?? 0, found);
   return p;
 }

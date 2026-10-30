@@ -26,6 +26,8 @@ export type Profile = {
   mastery: Record<string, number>;
   /** Best score per "mode|scope|difficulty". */
   best: Record<string, number>;
+  /** Name Them All: most countries typed per "scope|minutes" (0 minutes = no timer). */
+  allBest: Record<string, number>;
   muted: boolean;
   lang: "en" | "fr";
   /** Set once the player has picked a language on the welcome screen (per device). */
@@ -57,6 +59,7 @@ export function newProfile(): Profile {
     badges: [],
     mastery: {},
     best: {},
+    allBest: {},
     muted: false,
     lang: typeof navigator !== "undefined" && navigator.language?.toLowerCase().startsWith("fr") ? "fr" : "en",
     langPicked: false,
@@ -114,6 +117,9 @@ export function rankFor(level: number) {
 
 export type Badge = { id: string; emoji: string; name: string; how: string; earned: (p: Profile) => boolean };
 
+const worldBest = (p: Profile) =>
+  Math.max(0, ...Object.entries(p.allBest ?? {}).filter(([k]) => k.startsWith("World|")).map(([, v]) => v));
+
 const continentDone = (p: Profile, region: string) =>
   QUIZ_COUNTRIES.filter((c) => c.region === region).every((c) => (p.mastery[c.code] ?? 0) >= 1);
 
@@ -138,6 +144,8 @@ export const BADGES: Badge[] = [
   { id: "europe", emoji: "🏰", name: "Europe Ace", how: "Get every European country right once", earned: (p) => continentDone(p, "Europe") },
   { id: "oceania", emoji: "🏝️", name: "Oceania Ace", how: "Get every Oceania country right once", earned: (p) => continentDone(p, "Oceania") },
   { id: "level10", emoji: "🏆", name: "Legend", how: "Reach level 10", earned: (p) => levelFromXp(p.xp).level >= 10 },
+  { id: "half", emoji: "⌨️", name: "Half the World", how: "Type 100 countries in one World game", earned: (p) => worldBest(p) >= 100 },
+  { id: "all", emoji: "🌍", name: "Know-It-All", how: "Type all 195 countries in one World game", earned: (p) => worldBest(p) >= QUIZ_COUNTRIES.length },
 ];
 
 // --- Applying a finished round ----------------------------------------------
@@ -199,6 +207,38 @@ export function applyRound(
 
   const xp = Math.round(r.score / 10) + correct * 5;
   const coins = correct * 2 + (r.daily ? 25 : 0) + (newBest ? 10 : 0);
+  const before = levelFromXp(p.xp).level;
+  p.xp += xp;
+  p.coins += coins;
+  const leveledUp = levelFromXp(p.xp).level > before;
+  if (leveledUp) p.coins += 50;
+
+  const newBadges = BADGES.filter((b) => !p.badges.includes(b.id) && b.earned(p));
+  p.badges = [...p.badges, ...newBadges.map((b) => b.id)];
+  return { profile: p, rewards: { xp, coins: coins + (leveledUp ? 50 : 0), newBadges, leveledUp, newBest } };
+}
+
+// --- Name Them All ------------------------------------------------------------
+
+export function allBestKey(scope: Scope, minutes: number) {
+  return `${scope}|${minutes}`;
+}
+
+/** Saves a Name Them All game: XP and coins per country, mastery for each one typed, records and badges. */
+export function applyNameAll(
+  profile: Profile,
+  r: { scope: Scope; minutes: number; found: string[] },
+): { profile: Profile; rewards: Rewards } {
+  const p: Profile = { ...profile, mastery: { ...profile.mastery }, allBest: { ...profile.allBest } };
+  for (const code of r.found) p.mastery[code] = Math.min(5, (p.mastery[code] ?? 0) + 1);
+  p.gamesPlayed++;
+  p.totalCorrect += r.found.length;
+  const key = allBestKey(r.scope, r.minutes);
+  const newBest = r.found.length > (p.allBest[key] ?? 0);
+  if (newBest) p.allBest[key] = r.found.length;
+
+  const xp = r.found.length * 4;
+  const coins = r.found.length + (newBest ? 10 : 0);
   const before = levelFromXp(p.xp).level;
   p.xp += xp;
   p.coins += coins;

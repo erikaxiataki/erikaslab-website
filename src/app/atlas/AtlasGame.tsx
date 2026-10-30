@@ -6,6 +6,7 @@ import { useCallback, useEffect, useState } from "react";
 import { Duel } from "@/components/atlas/Duel";
 import { Explore } from "@/components/atlas/Explore";
 import { Flashcards } from "@/components/atlas/Flashcards";
+import { NameAll } from "@/components/atlas/NameAll";
 import { OnlineRoom } from "@/components/atlas/OnlineRoom";
 import { ProfileScreen } from "@/components/atlas/ProfileScreen";
 import { ResultScreen } from "@/components/atlas/ResultScreen";
@@ -32,6 +33,7 @@ type Screen =
   | { name: "duel" }
   | { name: "explore" }
   | { name: "cards" }
+  | { name: "nameall" }
   | { name: "profile" };
 
 type InstallPrompt = Event & { prompt: () => Promise<void> };
@@ -210,6 +212,9 @@ export function AtlasGame() {
     case "cards":
       body = <Flashcards />;
       break;
+    case "nameall":
+      body = <NameAll onHome={() => go({ name: "home" })} />;
+      break;
     case "profile":
       body = <ProfileScreen />;
       break;
@@ -294,7 +299,14 @@ function Home({ onGo, dailyDone, dailyStreak }: { onGo: (s: Screen) => void; dai
       className: "from-amber-500/30 to-orange-600/20 ring-amber-400/40 sm:col-span-2",
       badge: dailyStreak ? t("🔥 {n}-day streak", { n: dailyStreak }) : t("+25 🪙 bonus"),
     },
-    { emoji: "⚡", title: "Quick Play", text: "Map Hunt, Flags, Capitals or a Mix. 10 questions.", screen: { name: "setup", survival: false }, className: "from-violet-500/30 to-indigo-600/20 ring-violet-400/40" },
+    { emoji: "⚡", title: "Quick Play", text: "Map Hunt, Flags, Capitals, Name It or a Mix. 10 questions.", screen: { name: "setup", survival: false }, className: "from-violet-500/30 to-indigo-600/20 ring-violet-400/40" },
+    {
+      emoji: "⌨️",
+      title: "Name Them All",
+      text: "How many countries can you type before the timer runs out?",
+      screen: { name: "nameall" },
+      className: "from-teal-500/30 to-cyan-700/20 ring-teal-400/40",
+    },
     { emoji: "💀", title: "Survival", text: "Endless questions. Lose your lives and it's over.", screen: { name: "setup", survival: true }, className: "from-rose-500/30 to-red-700/20 ring-rose-400/40" },
     {
       emoji: "🌐",

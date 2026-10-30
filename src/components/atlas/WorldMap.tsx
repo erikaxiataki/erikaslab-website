@@ -159,7 +159,7 @@ export function WorldMap({ scope = "World", colors, onPick, showNames, focus, cl
       <svg
         ref={svgRef}
         viewBox={`0 0 ${MAP_WIDTH} ${MAP_HEIGHT}`}
-        className="block h-auto w-full touch-none select-none"
+        className={cn("block h-auto w-full touch-none select-none", (onPick || showNames) && "atlas-interactive")}
         role="img"
         aria-label="World map"
       >

@@ -22,6 +22,7 @@ export function ProfileScreen() {
   const bests = Object.entries(profile.best)
     .sort((a, b) => b[1] - a[1])
     .slice(0, 10);
+  const typingBests = Object.entries(profile.allBest).sort((a, b) => b[1] - a[1]);
 
   return (
     <div className="flex flex-col gap-3">
@@ -110,7 +111,7 @@ export function ProfileScreen() {
 
       <Panel>
         <SectionTitle className="mb-3">{t("🏆 Personal bests")}</SectionTitle>
-        {bests.length === 0 ? (
+        {bests.length === 0 && typingBests.length === 0 ? (
           <p className="text-slate-400">{t("Play a game to set your first record!")}</p>
         ) : (
           <ol className="flex flex-col gap-1.5">
@@ -128,6 +129,19 @@ export function ProfileScreen() {
                     {SCOPE_EMOJI[scope]} {t(scope)} · {DIFFICULTY[diff] && t(DIFFICULTY[diff].label)}
                   </span>
                   <span className="ml-auto font-black text-white tabular-nums">{num(score)}</span>
+                </li>
+              );
+            })}
+            {typingBests.map(([key, found]) => {
+              const [scope, minutes] = key.split("|") as [Scope, string];
+              return (
+                <li key={key} className="flex items-center gap-2 rounded-lg bg-teal-500/10 px-3 py-2">
+                  <span className="w-6 font-black text-slate-400">⌨️</span>
+                  <span>{t("Name Them All")}</span>
+                  <span className="text-sm text-slate-400">
+                    {SCOPE_EMOJI[scope]} {t(scope)} · {minutes === "0" ? t("No timer") : t("{n} min", { n: minutes })}
+                  </span>
+                  <span className="ml-auto font-black text-white tabular-nums">{t("{n} countries", { n: found })}</span>
                 </li>
               );
             })}
