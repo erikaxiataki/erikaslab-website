@@ -9,7 +9,7 @@ A world geography game in **English and French** (EN/FR switch in the header; Fr
 - **Offline:** installable app (PWA). After the first visit, everything except online rooms works without internet.
 - **Kid-safe online:** private rooms only, no chat (emoji reactions only), generated nicknames, nothing stored on a server.
 
-The home page (`/`) asks for a language (Français / English) on the first visit, then goes straight to the game at `/atlas` on later visits.
+The home page (`/`) always asks for a language (Français / English), highlighting the last choice, then opens the game at `/atlas`.
 
 Online rooms need a free Supabase project; see [SETUP-ONLINE.md](SETUP-ONLINE.md).
 

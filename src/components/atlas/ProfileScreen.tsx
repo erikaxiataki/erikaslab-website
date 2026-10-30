@@ -156,7 +156,7 @@ export function ProfileScreen() {
           tone="ghost"
           className="text-xs"
           onClick={() => {
-            if (window.confirm(t("Reset ALL progress, badges and coins? This can't be undone."))) setProfile({ ...newProfile(), lang: profile.lang, langPicked: profile.langPicked });
+            if (window.confirm(t("Reset ALL progress, badges and coins? This can't be undone."))) setProfile({ ...newProfile(), lang: profile.lang });
           }}
         >
           {t("Reset progress")}
