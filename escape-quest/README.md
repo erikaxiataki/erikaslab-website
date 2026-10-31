@@ -5,7 +5,7 @@ A 3D escape room for kids in English, French and Portuguese. Players design a de
 This folder is its own static site, deployed as the separate Vercel project `escape-quest` (root directory: `escape-quest`). It is not part of the erikaslab website or Atlas Quest; it only lives in this repository.
 
 - Two detective levels: Junior (ages 6 to 10) and Expert (11 and up, with harder math, decimals and longer memory puzzles).
-- After each room, a journey map shows the stars earned (escape, few hints, golden fish), a "Did you know?" fact, the skills practiced and a movement break. Stars unlock prizes (dance moves, pets, a crown) and are saved on the device.
+- After each room, a scrolling adventure map (winding road, round level buttons, the detective walking to the next level) shows the stars earned (escape, few hints, golden fish), a "Did you know?" fact, the skills practiced and a movement break. Stars unlock prizes (dance moves, pets, a crown) and are saved on the device.
 - Each room has its own music; puzzle moments vibrate on phones that allow it.
 
 - `index.html`: the whole game.
