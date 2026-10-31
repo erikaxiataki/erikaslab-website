@@ -1,8 +1,12 @@
 # Escape Quest
 
-A 3D escape room for kids in English, French and Portuguese. Players design a detective, walk through six rooms of Professor Marmalade's house, solve puzzles, and can play as a team.
+A 3D escape room for kids in English, French and Portuguese. Players design a detective, walk through eleven rooms in two worlds (Marmalade's House and the Animal Sports Camp), solve puzzles, and can play as a team.
 
 This folder is its own static site, deployed as the separate Vercel project `escape-quest` (root directory: `escape-quest`). It is not part of the erikaslab website or Atlas Quest; it only lives in this repository.
+
+- Two detective levels: Junior (ages 6 to 10) and Expert (11 and up, with harder math, decimals and longer memory puzzles).
+- After each room, a journey map shows the stars earned (escape, few hints, golden fish), a "Did you know?" fact, the skills practiced and a movement break. Stars unlock prizes (dance moves, pets, a crown) and are saved on the device.
+- Each room has its own music; puzzle moments vibrate on phones that allow it.
 
 - `index.html`: the whole game.
 - `three.min.js`, `supabase.js`, `591.supabase.js`: vendored libraries (three.js 0.149.0, supabase-js 2.45.4).
