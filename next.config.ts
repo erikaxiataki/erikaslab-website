@@ -8,6 +8,10 @@ const nextConfig: NextConfig = {
       { source: "/bible/:path*", destination: "https://bible-quest-one.vercel.app/", permanent: false },
     ];
   },
+  // Escape Quest is a static game in public/escape-quest.
+  async rewrites() {
+    return [{ source: "/escape-quest", destination: "/escape-quest/index.html" }];
+  },
 };
 
 export default nextConfig;
