@@ -12,8 +12,8 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
-    // Vendored, minified libraries for the static Escape Quest game.
-    "public/escape-quest/**",
+    // Escape Quest is a separate static game deployed as its own Vercel project.
+    "escape-quest/**",
   ]),
 ]);
 
