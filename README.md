@@ -13,19 +13,6 @@ The home page (`/`) always asks for a language (Français / English / Português
 
 Online rooms need a free Supabase project; see [SETUP-ONLINE.md](SETUP-ONLINE.md).
 
-# Bible Quest
-
-A separate game, hosted on the same site at **`/bible`**, that helps kids (8–16) learn the **66 books of the Bible** in order, in **English, French and Portuguese**. It has its own icon, install manifest, offline service worker (`public/bible-sw.js`, scoped to `/bible`), sounds and saved progress, and shares nothing with Atlas Quest.
-
-- **Landing page:** pick English, Français or Português first. Returning players see their saved progress, and anyone can restore a save code from another device.
-- **Quest Map:** 8 islands, one per part of the Bible (Law, History, Poetry & Wisdom, Major and Minor Prophets, Gospels & Acts, Paul's Letters, Other Letters & Revelation). On each island you **meet** the books (cards and a chant), **practice** them, then beat the **boss shelf** to open the next island. The final challenge is the Great Library: all 66 books.
-- **Games:** Bookshelf Builder (tap the books in order), Quick Quiz (What Comes Next?, What Came Before?, Missing Book, Which Book? from a story clue, Section Sorter, Old or New?), Type Them All, Survival and a Daily Challenge.
-- **Learning:** every answer shows the right book with its neighbors and a one-line summary. Missed books come back more often (mastery 0–5 per book). Selah the owl gives hints.
-- **Rewards:** XP and ranks, combos (x2, x3), coins for hints and streak shields, 18 badges, and the Great Library, a shelf that fills up as you master books.
-- **Kid-safe:** no accounts, nothing leaves the device. Save codes move progress between devices.
-
-Book data (names, chapters, summaries) lives in `src/lib/bible/books.ts`. The icon is drawn by `scripts/build-bible-icon.mjs`; run `node scripts/build-bible-icon.mjs` to regenerate the SVG and PNGs.
-
 ## Data
 
 Country data, French and Portuguese names/capitals, and flags come from the `world-countries`, `world-atlas` and `flag-icons` packages. To regenerate them after updating those packages, run:
