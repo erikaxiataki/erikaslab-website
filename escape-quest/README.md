@@ -1,6 +1,6 @@
 # Escape Quest
 
-A 3D escape room for kids in English, French and Portuguese. Players design a detective, walk through eleven rooms in two worlds (Marmalade's House and the Animal Sports Camp), solve puzzles, and can play as a team.
+A 3D escape room for kids in English, French and Portuguese. Players design a detective, walk through 19 rooms in four worlds (Marmalade's House, the Animal Sports Camp, the Jungle Rescue and the Ocean Adventure), solve puzzles, and can play as a team.
 
 This folder is its own static site, deployed as the separate Vercel project `escape-quest` (root directory: `escape-quest`). It is not part of the erikaslab website or Atlas Quest; it only lives in this repository.
 
