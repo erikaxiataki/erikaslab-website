@@ -14,7 +14,7 @@ import { type Settings, SettingsPicker } from "@/components/atlas/SettingsPicker
 import { type SoloConfig, SoloGame } from "@/components/atlas/SoloGame";
 import { GameButton, Panel, ProgressBar, SectionTitle } from "@/components/atlas/ui";
 import { CHALLENGE_LENGTH, type Challenge, decodeChallenge } from "@/lib/atlas/challenge";
-import { SCOPE_EMOJI } from "@/lib/atlas/countries";
+import { QUIZ_COUNTRIES, SCOPE_EMOJI } from "@/lib/atlas/countries";
 import { DIFFICULTY, MODES, dailySeed, randomSeed } from "@/lib/atlas/game";
 import { LANGS, useI18n } from "@/lib/atlas/i18n";
 import { onlineEnabled } from "@/lib/atlas/online";
@@ -319,6 +319,11 @@ function Home({ onGo, dailyDone, dailyStreak }: { onGo: (s: Screen) => void; dai
       text: "How many countries can you type before the timer runs out?",
       screen: { name: "nameall" },
       className: "from-teal-500/30 to-cyan-700/20 ring-teal-400/40",
+    },
+    {
+      emoji: "🎯", title: "World Map Hunt", text: "Locate every country in the world, one by one.",
+      screen: { name: "solo", config: { mode: "map", scope: "World", difficulty: "easy", seed: randomSeed(), count: QUIZ_COUNTRIES.length, worldMap: true }, label: "World Map Hunt" },
+      className: "from-sky-500/30 to-blue-700/20 ring-sky-400/40",
     },
     { emoji: "💀", title: "Survival", text: "Endless questions. Lose your lives and it's over.", screen: { name: "setup", survival: true }, className: "from-rose-500/30 to-red-700/20 ring-rose-400/40" },
     {

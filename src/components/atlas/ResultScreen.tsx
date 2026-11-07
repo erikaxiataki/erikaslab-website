@@ -50,7 +50,7 @@ export function ResultScreen({
           ? t("👍 Nice work!")
           : t("💪 Keep practicing!");
 
-  const canChallenge = !survival && !result.daily && profile;
+  const canChallenge = !survival && !result.worldMap && !result.daily && profile;
   const sendChallenge = async () => {
     if (!profile) return;
     const url = challengeUrl({

@@ -2,7 +2,7 @@ import { geoNaturalEarth1, geoPath } from "d3-geo";
 import type { Feature, Geometry } from "geojson";
 import { feature } from "topojson-client";
 import type { GeometryCollection, Topology } from "topojson-specification";
-import type { Scope } from "./countries";
+import { QUIZ_COUNTRIES, type Scope } from "./countries";
 
 export const MAP_WIDTH = 960;
 export const MAP_HEIGHT = 500;
@@ -83,6 +83,12 @@ export function loadWorld() {
       const [cx, cy] = path.centroid(f);
       return [{ id, d, cx, cy, tiny: path.area(f) < 12 }];
     });
+    for (const country of QUIZ_COUNTRIES) {
+      if (country.mapId) continue;
+      const [lat, lng] = country.latlng;
+      const [cx, cy] = projection([lng, lat])!;
+      shapes.push({ id: country.code, d: "", cx, cy, tiny: true });
+    }
     return { shapes, parts, project: (p: [number, number]) => projection(p) as [number, number] };
   });
   return geoPromise;

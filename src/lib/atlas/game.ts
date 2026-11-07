@@ -162,6 +162,10 @@ export function generateQuestions(
   return questions;
 }
 
+export function generateWorldMapQuestions(seed: number): Question[] {
+  return shuffle(QUIZ_COUNTRIES, mulberry32(seed)).map((country) => ({ kind: "map", country, options: [] }));
+}
+
 export function streakMultiplier(streak: number) {
   return streak >= 10 ? 3 : streak >= 5 ? 2 : 1;
 }

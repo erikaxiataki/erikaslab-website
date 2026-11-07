@@ -132,13 +132,15 @@ export function rankFor(level: number) {
 
 // --- Badges -----------------------------------------------------------------
 
-export type Badge = { id: string; emoji: string; name: string; how: string; earned: (p: Profile) => boolean };
+export type Badge = { id: string; emoji: string; name: string; how: string; earned: (p: Profile, located?: number) => boolean };
 
 const worldBest = (p: Profile) =>
   Math.max(0, ...Object.entries(p.allBest ?? {}).filter(([k]) => k.startsWith("World|")).map(([, v]) => v));
 
 const continentDone = (p: Profile, region: string) =>
   QUIZ_COUNTRIES.filter((c) => c.region === region).every((c) => (p.mastery[c.code] ?? 0) >= 1);
+
+const worldCountryCodes = new Set(QUIZ_COUNTRIES.map((c) => c.code));
 
 export const BADGES: Badge[] = [
   { id: "first", emoji: "🚀", name: "Lift Off", how: "Finish your first game", earned: (p) => p.gamesPlayed >= 1 },
@@ -148,6 +150,8 @@ export const BADGES: Badge[] = [
   { id: "perfect", emoji: "💯", name: "Perfect Round", how: "Get every question right", earned: (p) => p.perfectRounds >= 1 },
   { id: "flags100", emoji: "🏳️", name: "Flag Master", how: "100 flags right", earned: (p) => p.flagCorrect >= 100 },
   { id: "map100", emoji: "🗺️", name: "Cartographer", how: "Find 100 countries on the map", earned: (p) => p.mapCorrect >= 100 },
+  { id: "sharp-eye", emoji: "🎯", name: "Sharp Eye", how: "Locate half the world on the map in one game", earned: (_, located = 0) => located >= Math.ceil(worldCountryCodes.size / 2) },
+  { id: "world-mapper", emoji: "🌍", name: "World Mapper", how: "Locate every country on the map in one game", earned: (_, located = 0) => located >= worldCountryCodes.size },
   { id: "caps50", emoji: "🏛️", name: "Capital Genius", how: "50 capitals right", earned: (p) => p.capitalCorrect >= 50 },
   { id: "tiny", emoji: "🔍", name: "Island Hopper", how: "Find 10 tiny countries", earned: (p) => p.tinyCorrect >= 10 },
   { id: "daily7", emoji: "📅", name: "Week Warrior", how: "7-day daily streak", earned: (p) => p.dailyStreak >= 7 },
@@ -176,6 +180,7 @@ export type RoundResult = {
   score: number;
   bestStreak: number;
   daily?: boolean;
+  worldMap?: boolean;
   /** Round with a fixed length where a perfect score is possible. */
   fixedLength?: boolean;
 };
@@ -244,7 +249,7 @@ export function finishRound(
   }
   for (const [k, v] of Object.entries(extra) as [keyof typeof extra, number | undefined][]) p[k] += v ?? 0;
 
-  const key = bestKey(r.mode, r.scope, r.difficulty, endless);
+  const key = r.worldMap ? "map|World|easy|world-map" : bestKey(r.mode, r.scope, r.difficulty, endless);
   const newBest = r.score > (p.best[key] ?? 0);
   if (newBest) p.best[key] = r.score;
 
@@ -254,7 +259,16 @@ export function finishRound(
   const leveledUp = levelFromXp(p.xp).level > levelFromXp(startXp).level;
   if (leveledUp) p.coins += 50;
 
-  const newBadges = BADGES.filter((b) => !p.badges.includes(b.id) && b.earned(p));
+  const located = new Set<string>();
+  if (r.scope === "World") {
+    r.answers.forEach((answer, i) => {
+      const question = r.questions[i];
+      if (answer.correct && question?.kind === "map" && worldCountryCodes.has(question.country.code)) {
+        located.add(question.country.code);
+      }
+    });
+  }
+  const newBadges = BADGES.filter((b) => !p.badges.includes(b.id) && b.earned(p, located.size));
   p.badges = [...p.badges, ...newBadges.map((b) => b.id)];
   return {
     profile: p,

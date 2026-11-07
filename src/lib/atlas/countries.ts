@@ -29,6 +29,11 @@ export const BY_MAP_ID = new Map(
   COUNTRIES.filter((c) => c.mapId).map((c) => [c.mapId as string, c]),
 );
 
+// The map renders a point for sovereign countries without a polygon.
+for (const country of QUIZ_COUNTRIES) {
+  if (!country.mapId) BY_MAP_ID.set(country.code, country);
+}
+
 export const SCOPES = ["World", "Africa", "Americas", "Asia", "Europe", "Oceania"] as const;
 export type Scope = (typeof SCOPES)[number];
 

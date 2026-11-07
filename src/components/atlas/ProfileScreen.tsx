@@ -121,14 +121,14 @@ export function ProfileScreen() {
         ) : (
           <ol className="flex flex-col gap-1.5">
             {bests.map(([key, score], i) => {
-              const [mode, scope, diff, survival] = key.split("|") as [Mode, Scope, Difficulty, string?];
+              const [mode, scope, diff, variant] = key.split("|") as [Mode, Scope, Difficulty, string?];
               const m = MODES.find((x) => x.id === mode);
               return (
                 <li key={key} className="flex items-center gap-2 rounded-lg bg-slate-800/70 px-3 py-2">
                   <span className="w-6 font-black text-slate-400">{i + 1}</span>
                   <span>
-                    {m?.emoji} {m && t(m.label)}
-                    {survival && ` · ${t("Survival")}`}
+                    {variant === "world-map" ? `🎯 ${t("World Map Hunt")}` : m && `${m.emoji} ${t(m.label)}`}
+                    {variant === "survival" && ` · ${t("Survival")}`}
                   </span>
                   <span className="text-sm text-slate-400">
                     {SCOPE_EMOJI[scope]} {t(scope)} · {DIFFICULTY[diff] && t(DIFFICULTY[diff].label)}

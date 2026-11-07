@@ -77,7 +77,7 @@ function sanitize(raw: unknown): Profile | null {
         MODES.some((m) => m.id === mode) &&
         (SCOPES as readonly string[]).includes(scope) &&
         diff in DIFFICULTY &&
-        (extra === undefined || extra === "survival") &&
+        (extra === undefined || extra === "survival" || key === "map|World|easy|world-map") &&
         rest.length === 0;
       if (valid) p.best[key] = count(score);
     }

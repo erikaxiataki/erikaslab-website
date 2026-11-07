@@ -3,7 +3,7 @@
 import { Heart, X } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { Scope } from "@/lib/atlas/countries";
-import { type Answer, DIFFICULTY, type Difficulty, type Mode, generateQuestions, streakMultiplier } from "@/lib/atlas/game";
+import { type Answer, DIFFICULTY, type Difficulty, type Mode, generateQuestions, generateWorldMapQuestions, streakMultiplier } from "@/lib/atlas/game";
 import { useI18n } from "@/lib/atlas/i18n";
 import { type Rewards, type RoundResult, applyAnswer } from "@/lib/atlas/progress";
 import { getProfile, setProfile } from "@/lib/atlas/store";
@@ -18,6 +18,7 @@ export type SoloConfig = {
   /** Number of questions; ignored in survival. */
   count: number;
   survival?: boolean;
+  worldMap?: boolean;
   daily?: boolean;
   /** Prefer countries not asked recently (random games only; daily and challenges must repeat exactly). */
   fresh?: boolean;
@@ -54,6 +55,7 @@ export function SoloGame({
   const { t } = useI18n();
   // Built once per game: the profile changes mid-game (coins, progress) and must not reshuffle it.
   const [questions] = useState(() => {
+    if (config.worldMap) return generateWorldMapQuestions(seed);
     const p = config.fresh ? getProfile() : null;
     return generateQuestions(seed, mode, scope, difficulty, survival ? 400 : config.count, p ? { recent: p.recent, mastery: p.mastery } : undefined);
   });
@@ -81,12 +83,13 @@ export function SoloGame({
         score: all.reduce((s, a) => s + a.points, 0),
         bestStreak: streaks(all).bestStreak,
         daily: config.daily && !partial,
+        worldMap: config.worldMap,
         fixedLength: !survival && !partial,
       };
       completed.current = { result, rewards: onComplete(result, startXp) };
       return completed.current;
     },
-    [mode, scope, difficulty, questions, config.daily, survival, onComplete, startXp],
+    [mode, scope, difficulty, questions, config.daily, config.worldMap, survival, onComplete, startXp],
   );
 
   const next = useCallback(() => {
